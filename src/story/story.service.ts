@@ -5,7 +5,7 @@ import { LikedStoryDto, OrderByFilter, SortByScenesAmount } from "./types/types"
 import { setSortByLength } from "./helpers/setSortByLength"
 import { setOrderByFilter } from "./helpers/setOrderByFilter"
 import { NotFoundException } from "@nestjs/common"
-import { StoryLike } from "./storyLike.schema"
+import { StoryLike } from "./schemas/storyLike.schema"
 import { CreateStoryResultDto } from "./story.dto"
 import { StoryResult } from "./schemas/storyResult.schema"
 
@@ -152,7 +152,7 @@ export class StoryService {
    async setResult({
       storyId,
       userId,
-      resultSceneId,
+      resultSceneNumber,
       datetime,
    }: CreateStoryResultDto & { storyId: string, userId: string }) {
       const story = await this.storyResultModel.findOne({ storyId, userId })
@@ -160,7 +160,7 @@ export class StoryService {
       const data = {
          storyId,
          userId,
-         resultSceneId,
+         resultSceneNumber,
          datetime,
       }
 

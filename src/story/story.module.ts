@@ -3,7 +3,7 @@ import { StoryController } from "./story.controller"
 import { StoryService } from "./story.service"
 import { MongooseModule } from "@nestjs/mongoose"
 import { Story, StorySchema } from "./schemas/story.schema"
-import { StoryLike, StoryLikeSchema } from "./storyLike.schema"
+import { StoryLike, StoryLikeSchema } from "./schemas/storyLike.schema"
 import { StoryResult, StoryResultSchema } from "./schemas/storyResult.schema"
 import { ScenesModule } from "src/scene/scene.module"
 

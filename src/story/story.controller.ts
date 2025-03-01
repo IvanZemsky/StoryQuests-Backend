@@ -28,6 +28,7 @@ export class StoryController {
       private sceneService: SceneService,
    ) {}
 
+   @UseInterceptors(SessionInterceptor)
    @Get()
    async getStories(
       @Res() res: Response,
@@ -109,7 +110,7 @@ export class StoryController {
 
       const scene = await this.sceneService.getScene({
          storyId,
-         number: res.resultSceneId,
+         number: res.resultSceneNumber,
       })
 
       return { ...res, scene }

@@ -11,7 +11,7 @@ export class StoryResult {
    _id: string
 
    @Prop({ required: true })
-   resultSceneId: string // NOT _id in document, this is a unique id for scene in one story
+   resultSceneNumber: string
 
    @Prop({ required: true, ref: "User", type: mongoose.Schema.Types.ObjectId })
    userId: User

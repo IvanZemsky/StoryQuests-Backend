@@ -27,7 +27,7 @@ export class SceneService {
 
    async incrementPasses(storyId: string, sceneNumber: string) {
       const scene = await this.sceneModel.findOneAndUpdate(
-         { storyId, sceneNumber },
+         { storyId, number: sceneNumber },
          { $inc: { passes: 1 } },
          { new: true },
       )

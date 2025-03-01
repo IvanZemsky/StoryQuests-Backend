@@ -19,6 +19,6 @@ export type CreateStoryDto = {
 }
 
 export type CreateStoryResultDto = {
-   readonly resultSceneId: string
+   readonly resultSceneNumber: string
    readonly datetime: string
 }
