@@ -20,10 +20,12 @@ import { SessionInfo } from "src/auth/sessionInfoDecorator"
 import { SessionInterceptor } from "src/auth/sessionInterseptor"
 import { CreateStoryResultDto } from "./story.dto"
 import { SceneService } from "src/scene/scene.service"
+import { UserService } from "src/user/user.service"
 
 @Controller("stories")
 export class StoryController {
    constructor(
+      private userService: UserService,
       private storyService: StoryService,
       private sceneService: SceneService,
    ) {}
@@ -42,13 +44,18 @@ export class StoryController {
       @Query("only_count") onlyCount: boolean = false,
    ) {
       const userId = session?.id
+      const user = await this.userService.findById(userId)
+      if (!user) {
+         throw new NotFoundException("User not found")
+      }
+
       const count = await this.storyService.getStoryCount(search, length)
 
       res.setHeader("X-Total-Count", count)
       res.setHeader("Access-Control-Expose-Headers", "X-Total-Count")
 
       if (!onlyCount) {
-         const stories = await this.storyService.getAllStories(
+         const stories = await this.storyService.getAllStories({
             search,
             length,
             order,
@@ -56,7 +63,11 @@ export class StoryController {
             byUser,
             limit,
             page,
-         )
+         })
+
+         if (stories.length === 0) {
+            throw new NotFoundException()
+         }
 
          return res.json(stories)
       }
@@ -129,7 +140,12 @@ export class StoryController {
 
    @Get(":storyId/scenes")
    async getScenesByStoryId(@Param("storyId") storyId: string) {
-      return await this.sceneService.getScenesByStoryId(storyId)
+      const scenes = this.sceneService.getScenesByStoryId(storyId)
+      if (!scenes) {
+         throw new NotFoundException()
+      }
+      
+      return scenes
    }
 
    @Get(":storyId/scenes/:sceneNumber")
@@ -146,12 +162,26 @@ export class StoryController {
       @Param("storyId") storyId: string,
       @Param("sceneId") sceneId: string,
    ) {
+      const story = await this.storyService.getStoryById(storyId)
+      if (!story) {
+         throw new NotFoundException("Story not found")
+      }
+
+      const scene = await this.sceneService.getScene({ storyId, number: sceneId })
+      if (!scene) {
+         throw new NotFoundException("Scene not found")
+      }
+
       return await this.sceneService.incrementPasses(storyId, sceneId)
    }
 
    @Get(":storyId/results")
    async getStatistics(@Param("storyId") storyId: string) {
       const endScenes = await this.sceneService.getEndScenes(storyId)
+      if (!endScenes) {
+         throw new NotFoundException()
+      }
+
       return endScenes
    }
 }

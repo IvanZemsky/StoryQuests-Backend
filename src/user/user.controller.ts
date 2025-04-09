@@ -1,6 +1,6 @@
-import {  Controller, Get, Param, Query, } from "@nestjs/common"
+import { Controller, Get, NotFoundException, Param, Query } from "@nestjs/common"
 import { UserService } from "./user.service"
-import { } from "@nestjs/swagger"
+import {} from "@nestjs/swagger"
 
 @Controller("users")
 export class UserController {
@@ -9,19 +9,24 @@ export class UserController {
    @Get(":id")
    async getUserById(@Param("id") id: string) {
       const user = await this.userService.findById(id)
-      
-      if (user) {
-         return {
-            id: user._id,
-            login: user.login,
-         }
+
+      if (!user) {
+         throw new NotFoundException()
       }
 
-      return null
+      return {
+         id: user._id,
+         login: user.login,
+      }
    }
 
    async getUserByLogin(@Query() login: string) {
       const user = await this.userService.findByLogin(login)
+
+      if (!login) {
+         throw new NotFoundException()
+      }
+
       return user
    }
 
