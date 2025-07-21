@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { ApiProperty } from "@nestjs/swagger"
 import mongoose, { HydratedDocument, ObjectId } from "mongoose"
-import { IAnswer } from "./types/types"
+import { Answer } from "./types/types"
 import { answersExample } from "./docs/docs"
 import { Story } from "src/story/schemas/story.schema"
 
@@ -47,7 +47,7 @@ export class Scene {
       example: "default",
    })
    @Prop()
-   type: string
+   type: SceneType
 
    @ApiProperty({
       description: "Ссылка на иллюстрацию",
@@ -61,7 +61,7 @@ export class Scene {
       example: answersExample,
    })
    @Prop()
-   answers: IAnswer[]
+   answers: Answer[]
 
    @ApiProperty({
       description: "Количество прохождений для сцены с типом end",
@@ -69,7 +69,12 @@ export class Scene {
    })
    @Prop()
    passes?: number
+
+   @Prop({ required: true })
+   number: string
 }
+
+export type SceneType = "default" | "end"
 
 export type SceneDocument = HydratedDocument<Scene>
 export const SceneSchema = SchemaFactory.createForClass(Scene)

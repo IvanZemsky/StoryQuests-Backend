@@ -5,7 +5,6 @@ import { StoryModule } from "./story/story.module"
 import { ScenesModule } from "./scene/scene.module"
 import { UserModule } from "./user/user.module"
 import { AuthModule } from "./auth/auth.module"
-import { JwtModule } from "@nestjs/jwt"
 
 @Module({
    imports: [

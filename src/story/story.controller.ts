@@ -13,6 +13,10 @@ import {
    UseInterceptors,
    Body,
    Put,
+   Post,
+   HttpCode,
+   HttpStatus,
+   BadRequestException,
 } from "@nestjs/common"
 import { AuthGuard } from "src/auth/auth.guard"
 import { GetSessionInfoDto } from "src/auth/dto"
@@ -21,6 +25,7 @@ import { SessionInterceptor } from "src/auth/sessionInterseptor"
 import { CreateStoryResultDto } from "./story.dto"
 import { SceneService } from "src/scene/scene.service"
 import { UserService } from "src/user/user.service"
+import { CreateStoryDto } from "./story.dto"
 
 @Controller("stories")
 export class StoryController {
@@ -34,7 +39,7 @@ export class StoryController {
    @Get()
    async getStories(
       @Res() res: Response,
-      @SessionInfo() session: GetSessionInfoDto,
+      @SessionInfo() session?: GetSessionInfoDto,
       @Query("limit") limit?: number,
       @Query("page") page?: number,
       @Query("search") search: string = "",
@@ -44,9 +49,12 @@ export class StoryController {
       @Query("only_count") onlyCount: boolean = false,
    ) {
       const userId = session?.id
-      const user = await this.userService.findById(userId)
-      if (!user) {
-         throw new NotFoundException("User not found")
+
+      if (userId) {
+         const user = await this.userService.findById(userId)
+         if (!user) {
+            throw new NotFoundException("User not found")
+         }
       }
 
       const count = await this.storyService.getStoryCount(search, length)
@@ -75,11 +83,36 @@ export class StoryController {
       return res.json([])
    }
 
+   @Post()
+   @HttpCode(HttpStatus.OK)
+   @UseGuards(AuthGuard)
+   async create(@Body() body: CreateStoryDto, @SessionInfo() session: GetSessionInfoDto) {
+      console.log(body)
+      const { scenes, ...storyBody } = body
+      const author = session.id
+
+      const newStory = await this.storyService.create({
+         ...storyBody,
+         author,
+         sceneCount: scenes.length,
+      })
+      if (!newStory) {
+         throw new BadRequestException("Cannot create story")
+      }
+
+      const newScenes = await this.sceneService.createScenes(newStory._id, scenes)
+      if (!newScenes) {
+         throw new Error("Couldn't create scenes")
+      }
+
+      return newStory
+   }
+
    @UseInterceptors(SessionInterceptor)
    @Get(":storyId")
    async getStoryById(
       @Param("storyId") storyId: string,
-      @SessionInfo() session: GetSessionInfoDto,
+      @SessionInfo() session?: GetSessionInfoDto,
    ) {
       const userId = session?.id
       const story = await this.storyService.getStoryById(storyId, userId)
@@ -144,7 +177,7 @@ export class StoryController {
       if (!scenes) {
          throw new NotFoundException()
       }
-      
+
       return scenes
    }
 

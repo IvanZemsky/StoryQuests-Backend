@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { Scene } from "./scene.schema"
-import { Model } from "mongoose"
+import mongoose, { Model } from "mongoose"
+import { CreateSceneDto } from "./types/types"
 
 @Injectable()
 export class SceneService {
@@ -23,6 +24,24 @@ export class SceneService {
    async getEndScenes(storyId: string) {
       const scenes = await this.sceneModel.find({ storyId, type: "end" })
       return scenes
+   }
+
+   async createScenes(storyId: string, scenes: CreateSceneDto[]) {
+      const scenesToCreate = scenes.map((scene) => {
+         const sceneObj: CreateSceneDto & {
+            passes?: number
+            storyId: mongoose.Types.ObjectId
+         } = {
+            ...scene,
+            storyId: new mongoose.Types.ObjectId(storyId),
+         }
+         if (scene.type === "end") {
+            sceneObj.passes = 0
+         }
+         return sceneObj
+      })
+      const newScenes = await this.sceneModel.create(scenesToCreate)
+      return newScenes
    }
 
    async incrementPasses(storyId: string, sceneNumber: string) {

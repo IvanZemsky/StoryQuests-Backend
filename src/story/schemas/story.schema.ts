@@ -61,6 +61,10 @@ export class Story {
    })
    @Prop({ required: true })
    date: string
+
+   @ApiProperty({ example: ["tag1", "tag2"], description: "Теги истории" })
+   @Prop({ required: true })
+   tags: string[]
 }
 
 export type StoryDocument = HydratedDocument<Story>

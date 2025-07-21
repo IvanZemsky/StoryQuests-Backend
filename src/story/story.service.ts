@@ -1,12 +1,12 @@
 import { InjectModel } from "@nestjs/mongoose"
 import { Story } from "./schemas/story.schema"
-import { Model, QueryOptions } from "mongoose"
+import { Model, QueryOptions, Types } from "mongoose"
 import { LikedStoryDto, OrderByFilter, SortByScenesAmount } from "./types/types"
 import { setSortByLength } from "./helpers/setSortByLength"
 import { setOrderByFilter } from "./helpers/setOrderByFilter"
 import { NotFoundException } from "@nestjs/common"
 import { StoryLike } from "./schemas/storyLike.schema"
-import { CreateStoryResultDto } from "./story.dto"
+import { CreateStoryMainInfoDto, CreateStoryResultDto } from "./story.dto"
 import { StoryResult } from "./schemas/storyResult.schema"
 
 type GetStoryOptions = {
@@ -163,6 +163,18 @@ export class StoryService {
       }
 
       return await this.storyResultModel.create(data)
+   }
+
+   async create(dto: CreateStoryMainInfoDto & { author: string; sceneCount: number }) {
+      const story = await this.storyModel.create({
+         ...dto,
+         author: new Types.ObjectId(dto.author),
+         passes: 0,
+         likes: 0,
+         sceneCount: dto.sceneCount,
+      })
+
+      return story
    }
 
    private setQuery(
