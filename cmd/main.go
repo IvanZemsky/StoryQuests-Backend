@@ -2,26 +2,35 @@ package main
 
 import (
 	"log"
+	"stories-backend/config"
 	"stories-backend/internal/handlers"
 	"stories-backend/internal/repository"
 	"stories-backend/internal/service"
 	"stories-backend/pkg/db"
 
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	r := gin.Default()
+	config, err := config.ReadConfig("config/config.yml")
+	if err != nil {
+		log.Fatalf("Failed to read config: %v", err)
+	}
 
-	client, err := db.NewMongoDB()
+	URI := "mongodb://" + config.Database.Host + ":" + fmt.Sprint(config.Database.Port)
+
+	client, err := db.NewMongoDB(URI)
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 
-	storyRepository := repository.NewStoryRepository(client)
+	r := gin.Default()
+
+	storyRepository := repository.NewStoryRepository(client.Database(config.Database.Name))
 	storyService := service.NewStoryService(storyRepository)
 	handlers.NewStoryHandler(r, storyService)
 
-	r.Run(":8080")
-	
+	r.Run(":" + fmt.Sprint(config.Port))
+
 }

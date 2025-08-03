@@ -10,18 +10,18 @@ import (
 )
 
 type storyRepository struct {
-	client *mongo.Client
+	db *mongo.Database
 }
 
-func NewStoryRepository(client *mongo.Client) domain.StoryRepository {
-	return &storyRepository{client: client}
+func NewStoryRepository(db *mongo.Database) domain.StoryRepository {
+	return &storyRepository{db: db}
 }
 
 func (repo *storyRepository) Find() ([]domain.Story, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := repo.client.Database("story-quests").Collection("stories")
+	collection := repo.db.Collection("stories")
 
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
