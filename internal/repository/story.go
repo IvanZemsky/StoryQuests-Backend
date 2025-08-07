@@ -2,11 +2,10 @@ package repository
 
 import (
 	"context"
-	"stories-backend/internal/domain"
-	"time"
+	"stories-backend/internal/domain/story"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type storyRepository struct {
@@ -18,9 +17,11 @@ func NewStoryRepository(db *mongo.Database) domain.StoryRepository {
 }
 
 func (repo *storyRepository) Find() ([]domain.Story, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// нужен ли таймаут?
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// вынести?
 	collection := repo.db.Collection("stories")
 
 	cursor, err := collection.Find(ctx, bson.M{})

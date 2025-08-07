@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"stories-backend/internal/domain"
+	"stories-backend/internal/domain/story"
 
 	"github.com/gin-gonic/gin"
 )

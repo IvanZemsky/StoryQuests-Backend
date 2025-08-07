@@ -1,6 +1,6 @@
 package service
 
-import "stories-backend/internal/domain"
+import "stories-backend/internal/domain/story"
 
 type storyService struct {
 	repo domain.StoryRepository
