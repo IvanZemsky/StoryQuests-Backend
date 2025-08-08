@@ -55,7 +55,10 @@ func connectDB(URI string) *mongo.Client {
 }
 
 func initStoryModule(client *mongo.Client, config *config.Config, router *gin.Engine) {
-	storyRepository := repository.NewStoryRepository(client.Database(config.Database.Name))
+	storyRepository := repository.NewStoryRepository(
+		client.Database(config.Database.Name),
+		client.Database(config.Database.Name).Collection("stories"),
+	)
 	storyService := service.NewStoryService(storyRepository)
 	handlers.NewStoryHandler(router, storyService)
 }

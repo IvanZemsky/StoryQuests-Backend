@@ -3,28 +3,32 @@ package repository
 import (
 	"context"
 	"stories-backend/internal/domain/story"
+	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type storyRepository struct {
-	db *mongo.Database
+	db         *mongo.Database
+	collection *mongo.Collection
 }
 
-func NewStoryRepository(db *mongo.Database) domain.StoryRepository {
-	return &storyRepository{db: db}
+func NewStoryRepository(db *mongo.Database, collection *mongo.Collection) domain.StoryRepository {
+	return &storyRepository{
+		db:         db,
+		collection: collection,
+	}
 }
 
-func (repo *storyRepository) Find() ([]domain.Story, error) {
-	// нужен ли таймаут?
-	ctx, cancel := context.WithCancel(context.Background())
+func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, error) {
+	// вынести в отдельную функцию?
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
-	// вынести?
-	collection := repo.db.Collection("stories")
+	query := buildFindQuery(&filters)
 
-	cursor, err := collection.Find(ctx, bson.M{})
+	cursor, err := repo.collection.Find(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -36,4 +40,33 @@ func (repo *storyRepository) Find() ([]domain.Story, error) {
 	}
 
 	return stories, nil
+}
+
+func buildFindQuery(filters *domain.StoryFilters) bson.M {
+	query := bson.M{}
+
+	if filters.Search != "" {
+		query["$or"] = []bson.M{
+			{"name": bson.M{"$regex": filters.Search, "$options": "i"}},
+			{"description": bson.M{"$regex": filters.Search, "$options": "i"}},
+		}
+	}
+
+	return query
+}
+
+func (repo *storyRepository) FindByID(id bson.ObjectID) (domain.Story, error) {
+	// вынести в отдельную функцию?
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	var story domain.Story
+
+	// вывести правильную ошибку
+	err := repo.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&story)
+	if err != nil {
+		return domain.Story{}, err
+	}
+
+	return story, nil
 }
