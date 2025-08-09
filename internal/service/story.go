@@ -19,7 +19,6 @@ func (service *storyService) Find(filters domain.StoryFilters) ([]domain.Story, 
 func (service *storyService) FindByID(id string) (domain.Story, error) {
 	objID, err := ParseObjectID(id)
 	if err != nil {
-		// возвращать правильную ошибку
         return domain.Story{}, err
     }
 	return service.repo.FindByID(objID)

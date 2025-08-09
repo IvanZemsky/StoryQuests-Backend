@@ -1,9 +1,7 @@
 package repository
 
 import (
-	"context"
 	"stories-backend/internal/domain/story"
-	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -22,8 +20,7 @@ func NewStoryRepository(db *mongo.Database, collection *mongo.Collection) domain
 }
 
 func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, error) {
-	// вынести в отдельную функцию?
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	ctx, cancel := NewCustomRequestTimeoutContext(60)
 	defer cancel()
 
 	query := buildFindQuery(&filters)
@@ -56,13 +53,11 @@ func buildFindQuery(filters *domain.StoryFilters) bson.M {
 }
 
 func (repo *storyRepository) FindByID(id bson.ObjectID) (domain.Story, error) {
-	// вынести в отдельную функцию?
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	ctx, cancel := NewRequestTimeoutContext()
 	defer cancel()
 
 	var story domain.Story
 
-	// вывести правильную ошибку
 	err := repo.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&story)
 	if err != nil {
 		return domain.Story{}, err
