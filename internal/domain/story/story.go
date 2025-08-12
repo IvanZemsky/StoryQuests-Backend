@@ -19,10 +19,6 @@ type Story struct {
 	Tags        []string      `bson:"tags" json:"tags"`
 }
 
-type StoryFilters struct {
-	Search string `json:"search"`
-}
-
 type StoryService interface {
 	Find(filters StoryFilters) ([]Story, error)
 	FindByID(id string) (Story, error)

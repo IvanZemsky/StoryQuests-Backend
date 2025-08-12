@@ -22,7 +22,13 @@ func NewStoryHandler(r *gin.Engine, service domain.StoryService) {
 }
 
 func (handler *StoryHandler) Find(ctx *gin.Context) {
-	stories, err := handler.service.Find(domain.StoryFilters{Search: ctx.Query("search")})
+	filters := domain.StoryFilters{
+		Search: ctx.Query("search"),
+		Sort:   ctx.Query("sort"),
+		Length: ctx.Query("length"),
+	}
+
+	stories, err := handler.service.Find(filters)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return

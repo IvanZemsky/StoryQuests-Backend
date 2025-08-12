@@ -5,6 +5,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type storyRepository struct {
@@ -23,9 +24,16 @@ func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, 
 	ctx, cancel := NewCustomRequestTimeoutContext(60)
 	defer cancel()
 
-	query := buildFindQuery(&filters)
+	findOptions := options.Find()
 
-	cursor, err := repo.collection.Find(ctx, query)
+	query := buildFindQuery(&filters)
+	sort := buildSortQuery(&filters)
+
+	if len(sort) > 0 {
+		findOptions.SetSort(sort)
+	}
+
+	cursor, err := repo.collection.Find(ctx, query, findOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +57,44 @@ func buildFindQuery(filters *domain.StoryFilters) bson.M {
 		}
 	}
 
+	if filters.Length != "" {
+		if domain.IsValidLength(filters.Length) {
+			switch filters.Length {
+			case "short":
+				query["sceneCount"] = bson.M{
+					"$gt": domain.StoryLengthFilterOptions.Short.Gt,
+					"$lt": domain.StoryLengthFilterOptions.Short.Lt,
+				}
+			case "medium":
+				query["sceneCount"] = bson.M{
+					"$gt": domain.StoryLengthFilterOptions.Medium.Gt,
+					"$lt": domain.StoryLengthFilterOptions.Medium.Lt,
+				}
+			case "long":
+				query["sceneCount"] = bson.M{
+					"$gt": domain.StoryLengthFilterOptions.Long.Gt,
+					"$lt": domain.StoryLengthFilterOptions.Long.Lt,
+				}
+			}
+		}
+	}
+
 	return query
+}
+
+func buildSortQuery(filters *domain.StoryFilters) bson.D {
+	sort := bson.D{}
+	if filters.Sort != "" && domain.IsValidSort(filters.Sort) {
+		switch filters.Sort {
+		case "popular":
+			sort = bson.D{{Key: "passes", Value: -1}}
+		case "new":
+			sort = bson.D{{Key: "date", Value: -1}}
+		case "best":
+			sort = bson.D{{Key: "likes", Value: -1}}
+		}
+	}
+	return sort
 }
 
 func (repo *storyRepository) FindByID(id bson.ObjectID) (domain.Story, error) {
