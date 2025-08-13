@@ -2,6 +2,8 @@ package service
 
 import (
 	"stories-backend/internal/domain/story"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type storyService struct {
@@ -23,10 +25,6 @@ func (service *storyService) Find(filters domain.StoryFilters) ([]domain.Story, 
 	return stories, nil
 }
 
-func (service *storyService) FindByID(id string) (domain.Story, error) {
-	objID, err := ParseObjectID(id)
-	if err != nil {
-		return domain.Story{}, err
-	}
-	return service.repo.FindByID(objID)
+func (service *storyService) FindByID(id bson.ObjectID) (domain.Story, error) {
+	return service.repo.FindByID(id)
 }

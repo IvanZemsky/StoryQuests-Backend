@@ -21,7 +21,7 @@ type Story struct {
 
 type StoryService interface {
 	Find(filters StoryFilters) ([]Story, error)
-	FindByID(id string) (Story, error)
+	FindByID(id bson.ObjectID) (Story, error)
 }
 
 type StoryRepository interface {

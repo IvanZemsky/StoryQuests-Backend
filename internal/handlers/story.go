@@ -4,7 +4,9 @@ import (
 	"errors"
 	"net/http"
 	"stories-backend/internal/domain/story"
+	db "stories-backend/pkg/db/mongo"
 	"stories-backend/pkg/errors"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -22,10 +24,10 @@ func NewStoryHandler(r *gin.Engine, service domain.StoryService) {
 }
 
 func (handler *StoryHandler) Find(ctx *gin.Context) {
-	filters := domain.StoryFilters{
-		Search: ctx.Query("search"),
-		Sort:   ctx.Query("sort"),
-		Length: ctx.Query("length"),
+	filters, err := handler.parseStoryFilters(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	stories, err := handler.service.Find(filters)
@@ -37,7 +39,14 @@ func (handler *StoryHandler) Find(ctx *gin.Context) {
 }
 
 func (handler *StoryHandler) FindByID(ctx *gin.Context) {
-	story, err := handler.service.FindByID(ctx.Param("id"))
+	id, err := db.ParseObjectID(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	story, err := handler.service.FindByID(id)
+
 	if err != nil {
 		if errors.Is(err, customErrors.ErrParsingObjectID) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -48,7 +57,43 @@ func (handler *StoryHandler) FindByID(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, story)
+}
+
+func (handler *StoryHandler) parseStoryFilters(ctx *gin.Context) (domain.StoryFilters, error) {
+	var filters domain.StoryFilters
+
+	filters.Search = ctx.Query("search")
+	filters.Sort = ctx.Query("sort")
+	filters.Length = ctx.Query("length")
+
+	limit, err := parseIntQueryParam(ctx, "limit", 0)
+	if err != nil {
+		return filters, err
+	}
+	filters.Limit = limit
+
+	page, err := parseIntQueryParam(ctx, "page", 0)
+	if err != nil {
+		return filters, err
+	}
+	filters.Page = page
+
+	return filters, nil
+}
+
+func parseIntQueryParam(ctx *gin.Context, paramName string, defaultValue int) (int, error) {
+	paramStr := ctx.Query(paramName)
+	if paramStr == "" {
+		return defaultValue, nil
+	}
+
+	parsed, err := strconv.Atoi(paramStr)
+	if err != nil {
+		return 0, errors.New("Invalid " + paramName)
+	}
+	return parsed, nil
 }

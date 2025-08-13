@@ -7,7 +7,7 @@ import (
 	"stories-backend/internal/handlers"
 	"stories-backend/internal/repository"
 	"stories-backend/internal/service"
-	"stories-backend/pkg/db"
+	"stories-backend/pkg/db/mongo"
 	"time"
 
 	"fmt"

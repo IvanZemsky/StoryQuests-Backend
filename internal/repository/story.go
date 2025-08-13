@@ -27,7 +27,7 @@ func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, 
 	findOptions := options.Find()
 
 	query := buildFindQuery(&filters)
-	sort := buildSortQuery(&filters)
+	sort := buildAggregateQuery(&filters)
 
 	if len(sort) > 0 {
 		findOptions.SetSort(sort)
@@ -82,7 +82,7 @@ func buildFindQuery(filters *domain.StoryFilters) bson.M {
 	return query
 }
 
-func buildSortQuery(filters *domain.StoryFilters) bson.D {
+func buildAggregateQuery(filters *domain.StoryFilters) bson.D {
 	sort := bson.D{}
 	if filters.Sort != "" && domain.IsValidSort(filters.Sort) {
 		switch filters.Sort {
