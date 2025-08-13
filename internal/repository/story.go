@@ -27,11 +27,13 @@ func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, 
 	findOptions := options.Find()
 
 	query := buildFindQuery(&filters)
-	sort := buildAggregateQuery(&filters)
 
+	sort := buildAggregateQuery(&filters)
 	if len(sort) > 0 {
 		findOptions.SetSort(sort)
 	}
+
+	setPagination(findOptions, filters.Page, filters.Limit)
 
 	cursor, err := repo.collection.Find(ctx, query, findOptions)
 	if err != nil {
@@ -95,6 +97,11 @@ func buildAggregateQuery(filters *domain.StoryFilters) bson.D {
 		}
 	}
 	return sort
+}
+
+func setPagination(options *options.FindOptionsBuilder, page int, limit int) {
+	options.SetSkip(int64((page - 1) * limit))
+	options.SetLimit(int64(limit))
 }
 
 func (repo *storyRepository) FindByID(id bson.ObjectID) (domain.Story, error) {

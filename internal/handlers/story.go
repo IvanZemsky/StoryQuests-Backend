@@ -70,13 +70,13 @@ func (handler *StoryHandler) parseStoryFilters(ctx *gin.Context) (domain.StoryFi
 	filters.Sort = ctx.Query("sort")
 	filters.Length = ctx.Query("length")
 
-	limit, err := parseIntQueryParam(ctx, "limit", 0)
+	limit, err := parseIntQueryParam(ctx, "limit", 10)
 	if err != nil {
 		return filters, err
 	}
 	filters.Limit = limit
 
-	page, err := parseIntQueryParam(ctx, "page", 0)
+	page, err := parseIntQueryParam(ctx, "page", 1)
 	if err != nil {
 		return filters, err
 	}
