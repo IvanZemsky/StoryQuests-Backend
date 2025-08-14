@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"stories-backend/config"
+	storyDomain "stories-backend/internal/domain/story"
 	"stories-backend/internal/handlers"
 	"stories-backend/internal/repository"
 	"stories-backend/internal/service"
@@ -33,7 +34,8 @@ func main() {
 
 	router := gin.Default()
 
-	initStoryModule(client, config, router)
+	storyRepo := initStoryModule(client, config, router)
+	initSceneModule(client, config, router, *storyRepo)
 
 	router.Run(":" + fmt.Sprint(config.Port))
 }
@@ -54,11 +56,26 @@ func connectDB(URI string) *mongo.Client {
 	return client
 }
 
-func initStoryModule(client *mongo.Client, config *config.Config, router *gin.Engine) {
+func initStoryModule(client *mongo.Client, config *config.Config, router *gin.Engine) *storyDomain.StoryRepository {
 	storyRepository := repository.NewStoryRepository(
 		client.Database(config.Database.Name),
 		client.Database(config.Database.Name).Collection("stories"),
 	)
 	storyService := service.NewStoryService(storyRepository)
 	handlers.NewStoryHandler(router, storyService)
+
+	return &storyRepository
+}
+
+func initSceneModule(client *mongo.Client,
+	config *config.Config,
+	router *gin.Engine,
+	storyRepo storyDomain.StoryRepository,
+) {
+	sceneRepository := repository.NewSceneRepository(
+		client.Database(config.Database.Name),
+		client.Database(config.Database.Name).Collection("scenes"),
+	)
+	sceneService := service.NewSceneService(sceneRepository, storyRepo)
+	handlers.NewSceneHandler(router, sceneService)
 }

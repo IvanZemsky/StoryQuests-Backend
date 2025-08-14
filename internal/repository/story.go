@@ -117,3 +117,20 @@ func (repo *storyRepository) FindByID(id bson.ObjectID) (domain.Story, error) {
 
 	return story, nil
 }
+
+func (repo *storyRepository) StoryExists(id bson.ObjectID) (bool, error) {
+	ctx, cancel := NewRequestTimeoutContext()
+	defer cancel()
+
+	var story domain.Story
+
+	err := repo.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&story)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}

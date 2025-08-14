@@ -10,7 +10,7 @@ type Story struct {
 	ID          bson.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name        string        `bson:"name" json:"name"`
 	Description string        `bson:"description" json:"description"`
-	AuthorID    bson.ObjectID `bson:"authorId" json:"authorId"`
+	AuthorID    bson.ObjectID `bson:"author" json:"author"`
 	SceneCount  int           `bson:"sceneCount" json:"sceneCount"`
 	Img         string        `bson:"img"  json:"img"`
 	Likes       int           `bson:"likes"  json:"likes"`
@@ -27,4 +27,5 @@ type StoryService interface {
 type StoryRepository interface {
 	Find(filters StoryFilters) ([]Story, error)
 	FindByID(id bson.ObjectID) (Story, error)
+	StoryExists(id bson.ObjectID) (bool, error)
 }
