@@ -12,10 +12,12 @@ type SceneHandler struct {
 	service domain.SceneService
 }
 
-func NewSceneHandler(r *gin.Engine, service domain.SceneService) {
+func NewSceneHandler(r *gin.Engine, service domain.SceneService) *SceneHandler {
 	handler := SceneHandler{service: service}
 
 	r.GET("/stories/:id/scenes", handler.FindByStoryID)
+
+	return &handler
 }
 
 func (handler *SceneHandler) FindByStoryID(ctx *gin.Context) {

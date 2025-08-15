@@ -2,10 +2,9 @@ package service
 
 import (
 	"fmt"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"stories-backend/internal/domain/scene"
 	storyDomain "stories-backend/internal/domain/story"
-
-	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type sceneService struct {
