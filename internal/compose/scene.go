@@ -6,7 +6,7 @@ import (
 	storyDomain "stories-backend/internal/domain/story"
 	handlers "stories-backend/internal/handlers/scene"
 	"stories-backend/internal/repository/scene"
-	"stories-backend/internal/service"
+	"stories-backend/internal/service/scene"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
