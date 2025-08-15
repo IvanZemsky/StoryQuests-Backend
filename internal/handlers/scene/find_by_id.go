@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	db "stories-backend/pkg/db/mongo"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func (handler *SceneHandler) FindByStoryID(ctx *gin.Context) {
@@ -17,6 +19,11 @@ func (handler *SceneHandler) FindByStoryID(ctx *gin.Context) {
 	scenes, err := handler.service.FindByStoryID(id)
 
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Story not found"})
+			return
+		}
+
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}

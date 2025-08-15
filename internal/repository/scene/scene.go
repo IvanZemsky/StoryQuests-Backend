@@ -2,25 +2,13 @@ package repository
 
 import (
 	domain "stories-backend/internal/domain/scene"
+	"stories-backend/internal/repository"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-type sceneRepository struct {
-	db         *mongo.Database
-	collection *mongo.Collection
-}
-
-func NewSceneRepository(db *mongo.Database, collection *mongo.Collection) domain.SceneRepository {
-	return &sceneRepository{
-		db:         db,
-		collection: collection,
-	}
-}
-
 func (repo *sceneRepository) FindByStoryID(storyID bson.ObjectID) ([]domain.Scene, error) {
-	ctx, cancel := NewRequestTimeoutContext()
+	ctx, cancel := repository.NewRequestTimeoutContext()
 	defer cancel()
 
 	var scenes []domain.Scene

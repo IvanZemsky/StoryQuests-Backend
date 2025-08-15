@@ -1,10 +1,11 @@
 package service
 
 import (
-	"fmt"
-	"go.mongodb.org/mongo-driver/v2/bson"
 	"stories-backend/internal/domain/scene"
 	storyDomain "stories-backend/internal/domain/story"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type sceneService struct {
@@ -25,7 +26,7 @@ func (service *sceneService) FindByStoryID(id bson.ObjectID) ([]domain.Scene, er
 		return nil, err
 	}
 	if !exists {
-		return nil, fmt.Errorf("story with ID %s not found", id.Hex())
+		return nil, mongo.ErrNoDocuments
 	}
 	return service.repo.FindByStoryID(id)
 }

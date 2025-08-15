@@ -2,25 +2,13 @@ package repository
 
 import (
 	"stories-backend/internal/domain/story"
+	"stories-backend/internal/repository"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-type storyRepository struct {
-	db         *mongo.Database
-	collection *mongo.Collection
-}
-
-func NewStoryRepository(db *mongo.Database, collection *mongo.Collection) domain.StoryRepository {
-	return &storyRepository{
-		db:         db,
-		collection: collection,
-	}
-}
-
 func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, error) {
-	ctx, cancel := NewCustomRequestTimeoutContext(60)
+	ctx, cancel := repository.NewCustomRequestTimeoutContext(60)
 	defer cancel()
 
 	findOptions := options.Find()
@@ -101,35 +89,4 @@ func buildAggregateQuery(filters *domain.StoryFilters) bson.D {
 func setPagination(options *options.FindOptionsBuilder, page int, limit int) {
 	options.SetSkip(int64((page - 1) * limit))
 	options.SetLimit(int64(limit))
-}
-
-func (repo *storyRepository) FindByID(id bson.ObjectID) (domain.Story, error) {
-	ctx, cancel := NewRequestTimeoutContext()
-	defer cancel()
-
-	var story domain.Story
-
-	err := repo.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&story)
-	if err != nil {
-		return domain.Story{}, err
-	}
-
-	return story, nil
-}
-
-func (repo *storyRepository) StoryExists(id bson.ObjectID) (bool, error) {
-	ctx, cancel := NewRequestTimeoutContext()
-	defer cancel()
-
-	var story domain.Story
-
-	err := repo.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&story)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false, nil
-		}
-		return false, err
-	}
-
-	return true, nil
 }

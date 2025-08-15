@@ -4,7 +4,7 @@ import (
 	"stories-backend/config"
 	domain "stories-backend/internal/domain/story"
 	handlers "stories-backend/internal/handlers/story"
-	"stories-backend/internal/repository"
+	"stories-backend/internal/repository/story"
 	"stories-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
