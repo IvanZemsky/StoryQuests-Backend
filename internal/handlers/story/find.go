@@ -1,0 +1,46 @@
+package handlers
+
+import (
+	"net/http"
+	domain "stories-backend/internal/domain/story"
+	"stories-backend/internal/handlers/common"
+
+	"github.com/gin-gonic/gin"
+)
+
+func (handler *StoryHandler) Find(ctx *gin.Context) {
+	filters, err := handler.parseStoryFilters(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	stories, err := handler.service.Find(filters)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+	ctx.JSON(http.StatusOK, stories)
+}
+
+func (handler *StoryHandler) parseStoryFilters(ctx *gin.Context) (domain.StoryFilters, error) {
+	var filters domain.StoryFilters
+
+	filters.Search = ctx.Query("search")
+	filters.Sort = ctx.Query("sort")
+	filters.Length = ctx.Query("length")
+
+	limit, err := handlers.ParseIntQueryParam(ctx.Query("limit"), "limit", 10)
+	if err != nil {
+		return filters, err
+	}
+	filters.Limit = limit
+
+	page, err := handlers.ParseIntQueryParam(ctx.Query("page"), "page", 1)
+	if err != nil {
+		return filters, err
+	}
+	filters.Page = page
+
+	return filters, nil
+}

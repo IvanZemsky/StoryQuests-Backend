@@ -3,7 +3,7 @@ package compose
 import (
 	"stories-backend/config"
 	domain "stories-backend/internal/domain/story"
-	"stories-backend/internal/handlers"
+	handlers "stories-backend/internal/handlers/story"
 	"stories-backend/internal/repository"
 	"stories-backend/internal/service"
 
