@@ -18,7 +18,3 @@ func NewStoryHandler(r *gin.Engine, service domain.StoryService) *StoryHandler {
 
 	return &handler
 }
-
-func (h *StoryHandler) UpdateService(newService domain.StoryService) {
-	h.service = newService
-}

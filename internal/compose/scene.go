@@ -16,26 +16,20 @@ type SceneModule struct {
 	Handler    *handlers.SceneHandler
 	Service    domain.SceneService
 	Repository domain.SceneRepository
-	StoryRepository storyDomain.StoryRepository
 }
 
 func InitSceneModule(
 	client *mongo.Client,
 	config *config.Config,
 	router *gin.Engine,
+	storyRepo storyDomain.StoryRepository,
 ) *SceneModule {
 	sceneRepository := repository.NewSceneRepository(
 		client.Database(config.Database.Name),
 		client.Database(config.Database.Name).Collection("scenes"),
 	)
-	sceneService := service.NewSceneService(sceneRepository, nil)
+	sceneService := service.NewSceneService(sceneRepository, storyRepo)
 	sceneHandler := handlers.NewSceneHandler(router, sceneService)
 
 	return &SceneModule{Handler: sceneHandler, Service: sceneService, Repository: sceneRepository}
-}
-
-func (m *SceneModule) SetStoryRepository(storyRepo storyDomain.StoryRepository) {
-	m.StoryRepository = storyRepo
-	m.Service = service.NewSceneService(m.Repository, storyRepo)                                      
-	m.Handler.UpdateService(m.Service)                         
 }

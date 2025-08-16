@@ -17,7 +17,3 @@ func NewSceneHandler(r *gin.Engine, service domain.SceneService) *SceneHandler {
 
 	return &handler
 }
-
-func (h *SceneHandler) UpdateService(newService domain.SceneService) {
-	h.service = newService
-}

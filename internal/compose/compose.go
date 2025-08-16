@@ -9,9 +9,6 @@ import (
 
 func InitModules(client *mongo.Client, config *config.Config, router *gin.Engine) {
 	storyModule := InitStoryModule(client, config, router)
-	sceneModule := InitSceneModule(client, config, router)
+	InitSceneModule(client, config, router, storyModule.Repository)
 
-	storyModule.SetSceneRepository(sceneModule.Repository)
-	sceneModule.SetStoryRepository(storyModule.Repository)
 }
-
