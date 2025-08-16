@@ -1,0 +1,16 @@
+package domain
+
+import "go.mongodb.org/mongo-driver/v2/bson"
+
+type User struct {
+	ID    bson.ObjectID `bson:"_id" json:"id"`
+	Login string        `bson:"login" json:"login"`
+}
+
+type UserService interface {
+	FindByID(id bson.ObjectID) (User, error)
+}
+
+type UserRepository interface {
+	FindByID(id bson.ObjectID) (User, error)
+}
