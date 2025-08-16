@@ -31,7 +31,7 @@ func main() {
 
 	router := gin.Default()
 
-	compose.InitModules(client, config, router)
+	compose.InitModules(compose.InitModuleOptions{Client: client, Config: config, Router: router})
 
 	router.Run(":" + fmt.Sprint(config.Port))
 }
