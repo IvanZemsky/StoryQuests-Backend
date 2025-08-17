@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"stories-backend/internal/domain/auth"
 	"time"
@@ -54,5 +55,18 @@ func (handler *AuthHandler) Logout(ctx *gin.Context) {
 }
 
 func (handler *AuthHandler) GetSession(ctx *gin.Context) {
+	token, err := ctx.Cookie("token")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	log.Println(token)
 
+	session, err := handler.service.GetSession(token)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, session)
 }

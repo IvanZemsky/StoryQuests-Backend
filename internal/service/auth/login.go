@@ -17,7 +17,7 @@ func (s *authService) Login(dto domain.LoginDTO) (string, error) {
 		return "", err
 	}
 
-	token, err := generateToken(user.ID.String(), user.Login)
+	token, err := generateToken(user.ID.Hex(), user.Login)
 	if err != nil {
 		return "", err
 	}

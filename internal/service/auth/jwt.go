@@ -41,18 +41,36 @@ func generateToken(userID string, login string) (string, error) {
 }
 
 func validateToken(tokenStr string) (domain.JWTClaims, error) {
-	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
-		return []byte("secret"), nil
-	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+    claims := domain.JWTClaims{}
+    token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (any, error) {
+        return []byte("secret"), nil
+    })
 
-	if err != nil {
-		return domain.JWTClaims{}, err
-	}
+    if err != nil {
+        return domain.JWTClaims{}, err
+    }
 
-	if claims, ok := token.Claims.(domain.JWTClaims); ok {
-		return claims, nil
-	} else {
-		return domain.JWTClaims{}, errors.New("invalid token")
-	}
-
+    if claims, ok := token.Claims.(*domain.JWTClaims); ok && token.Valid {
+        return *claims, nil
+    } else {
+        return domain.JWTClaims{}, errors.New("invalid token")
+    }
 }
+
+// func validateToken(tokenStr string) (domain.JWTClaims, error) {
+// 	claims := &domain.JWTClaims{}
+// 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (any, error) {
+// 		return []byte("secret"), nil
+// 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+
+// 	if err != nil {
+// 		return domain.JWTClaims{}, err
+// 	}
+
+// 	if claims, ok := token.Claims.(domain.JWTClaims); ok {
+// 		return claims, nil
+// 	} else {
+// 		return domain.JWTClaims{}, errors.New("invalid token")
+// 	}
+
+// }

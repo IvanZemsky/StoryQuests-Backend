@@ -1,5 +1,12 @@
 package service
 
-func (s *authService) GetSession(token string) (string, error) {
-	return "", nil
+import domain "stories-backend/internal/domain/auth"
+
+func (s *authService) GetSession(token string) (domain.Session, error) {
+	session, err := validateToken(token)
+	if err != nil {
+		return domain.Session{}, err
+	}
+
+	return domain.Session{ID: session.ID, Login: session.Login}, nil
 }

@@ -26,7 +26,7 @@ func (s *authService) Register(dto domain.RegisterDTO) (string, error) {
 		return "", err
 	}
 
-	token, err := generateToken(newUser.ID.String(), dto.Login)
+	token, err := generateToken(newUser.ID.Hex(), dto.Login)
 	if err != nil {
 		return "", err
 	}
