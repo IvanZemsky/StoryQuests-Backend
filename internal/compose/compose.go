@@ -28,6 +28,7 @@ type InitModuleOptions struct {
 func InitModules(init InitModuleOptions) {
 	repositories := initRepositories(init.Client, init.Config)
 	InitUserModule(init, repositories.user)
+	InitAuthModule(init, repositories.user)
 	InitStoryModule(init, repositories.story, repositories.scene)
 	InitSceneModule(init, repositories.scene, repositories.story)
 

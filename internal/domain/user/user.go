@@ -3,8 +3,10 @@ package domain
 import "go.mongodb.org/mongo-driver/v2/bson"
 
 type User struct {
-	ID    bson.ObjectID `bson:"_id" json:"id"`
-	Login string        `bson:"login" json:"login"`
+	ID           bson.ObjectID `bson:"_id" json:"id"`
+	Login        string        `bson:"login" json:"login"`
+	PasswordHash string        `bson:"passwordHash" json:"passwordHash"`
+	Salt         string        `bson:"salt" json:"salt"`
 }
 
 type UserService interface {
