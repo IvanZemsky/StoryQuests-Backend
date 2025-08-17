@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"net/http"
 	"stories-backend/internal/domain/auth"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,10 +15,10 @@ type AuthHandler struct {
 func NewAuthHandler(r *gin.Engine, service domain.AuthService) *AuthHandler {
 	handler := AuthHandler{service: service}
 
-	r.POST("/login", handler.Login)
-	r.POST("/register", handler.Register)
-	r.POST("/logout", handler.Logout)
-	r.GET("/session", handler.GetSession)
+	r.POST("/auth/login", handler.Login)
+	r.POST("/auth/register", handler.Register)
+	r.POST("/auth/logout", handler.Logout)
+	r.GET("/auth/session", handler.GetSession)
 
 	return &handler
 }
@@ -26,13 +28,22 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 }
 
 func (handler *AuthHandler) Register(ctx *gin.Context) {
-
+	var body domain.RegisterDTO
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	token, error := handler.service.Register(body)
+	if error != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": error.Error()})
+		return
+	}
+	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "localhost", false, true)
 }
 
 func (handler *AuthHandler) Logout(ctx *gin.Context) {
 
 }
 
-func (handler *AuthHandler) GetSession(ctx *gin.Context){
+func (handler *AuthHandler) GetSession(ctx *gin.Context) {
 
 }

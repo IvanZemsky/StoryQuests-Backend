@@ -6,7 +6,6 @@ type User struct {
 	ID           bson.ObjectID `bson:"_id" json:"id"`
 	Login        string        `bson:"login" json:"login"`
 	PasswordHash string        `bson:"passwordHash" json:"passwordHash"`
-	Salt         string        `bson:"salt" json:"salt"`
 }
 
 type UserService interface {
@@ -15,4 +14,6 @@ type UserService interface {
 
 type UserRepository interface {
 	FindByID(id bson.ObjectID) (User, error)
+	FindByLogin(login string) (User, error)
+	Create(dto CreateUserDTO) (User, error)
 }
