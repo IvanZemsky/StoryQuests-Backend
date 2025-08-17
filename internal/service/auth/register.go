@@ -4,11 +4,8 @@ import (
 	"errors"
 	domain "stories-backend/internal/domain/auth"
 	userDomain "stories-backend/internal/domain/user"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *authService) Register(dto domain.RegisterDTO) (string, error) {
@@ -16,7 +13,7 @@ func (s *authService) Register(dto domain.RegisterDTO) (string, error) {
 		return "", err
 	}
 
-	passwordHash, err := s.hashPassword(dto.Password)
+	passwordHash, err := hashPassword(dto.Password)
 	if err != nil {
 		return "", err
 	}
@@ -29,7 +26,7 @@ func (s *authService) Register(dto domain.RegisterDTO) (string, error) {
 		return "", err
 	}
 
-	token, err := GererateToken(newUser.ID.String(), dto.Login)
+	token, err := generateToken(newUser.ID.String(), dto.Login)
 	if err != nil {
 		return "", err
 	}
@@ -47,35 +44,4 @@ func (s *authService) checkIfUserExists(login string) error {
 	}
 
 	return nil
-}
-
-func (s *authService) hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), nil
-}
-
-func GererateToken(userID string, login string) (string, error) {
-	expirationTime := time.Now().Add(1 * time.Hour)
-
-	claims := domain.JWTClaims{
-		ID:    userID,
-		Login: login,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// store secret separate and safe
-	tokenString, err := token.SignedString([]byte("secret"))
-
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
 }
