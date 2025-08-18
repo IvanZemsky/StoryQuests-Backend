@@ -1,8 +1,10 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
 	"stories-backend/internal/domain/auth"
+	handlers "stories-backend/internal/handlers/common"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
@@ -14,7 +16,7 @@ func NewAuthHandler(r *gin.Engine, service domain.AuthService) *AuthHandler {
 
 	r.POST("/auth/login", handler.Login)
 	r.POST("/auth/register", handler.Register)
-	r.POST("/auth/logout", handler.Logout)
+	r.POST("/auth/logout", handlers.AuthMiddleware(), handler.Logout)
 	r.GET("/auth/session", handler.GetSession)
 
 	return &handler

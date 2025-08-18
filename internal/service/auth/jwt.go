@@ -40,7 +40,7 @@ func generateToken(userID string, login string) (string, error) {
 	return tokenString, nil
 }
 
-func validateToken(tokenStr string) (domain.JWTClaims, error) {
+func ValidateToken(tokenStr string) (domain.JWTClaims, error) {
     claims := domain.JWTClaims{}
     token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (any, error) {
         return []byte("secret"), nil
