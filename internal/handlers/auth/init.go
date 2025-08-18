@@ -51,7 +51,7 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 }
 
 func (handler *AuthHandler) Logout(ctx *gin.Context) {
-
+	ctx.SetCookie("token", "", -1, "/", "localhost", false, true)
 }
 
 func (handler *AuthHandler) GetSession(ctx *gin.Context) {
