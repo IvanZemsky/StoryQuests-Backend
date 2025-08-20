@@ -56,21 +56,3 @@ func ValidateToken(tokenStr string) (domain.JWTClaims, error) {
         return domain.JWTClaims{}, errors.New("invalid token")
     }
 }
-
-// func validateToken(tokenStr string) (domain.JWTClaims, error) {
-// 	claims := &domain.JWTClaims{}
-// 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (any, error) {
-// 		return []byte("secret"), nil
-// 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
-
-// 	if err != nil {
-// 		return domain.JWTClaims{}, err
-// 	}
-
-// 	if claims, ok := token.Claims.(domain.JWTClaims); ok {
-// 		return claims, nil
-// 	} else {
-// 		return domain.JWTClaims{}, errors.New("invalid token")
-// 	}
-
-// }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	domain "stories-backend/internal/domain/auth"
 	userDomain "stories-backend/internal/domain/user"
+	customErrors "stories-backend/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -37,7 +38,7 @@ func (s *authService) Register(dto domain.RegisterDTO) (string, error) {
 func (s *authService) checkIfUserExists(login string) error {
 	_, err := s.userRepo.FindByLogin(login)
 	if err == nil {
-		return errors.New("user with this login already exists")
+		return customErrors.ErrUserAlreadyExists
 	}
 	if !errors.Is(err, mongo.ErrNoDocuments) {
 		return err

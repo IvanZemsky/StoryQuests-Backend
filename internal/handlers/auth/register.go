@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"net/http"
+	"errors"
 	domain "stories-backend/internal/domain/auth"
+	customErrors "stories-backend/pkg/errors"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,11 +13,15 @@ import (
 func (handler *AuthHandler) Register(ctx *gin.Context) {
 	var body domain.RegisterDTO
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 	}
-	token, error := handler.service.Register(body)
-	if error != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": error.Error()})
+	token, err := handler.service.Register(body)
+	if err != nil {
+		if errors.Is(err, customErrors.ErrUserAlreadyExists) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "localhost", false, true)
