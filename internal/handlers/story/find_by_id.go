@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	db "stories-backend/pkg/db/mongo"
 	customErrors "stories-backend/pkg/errors"
@@ -20,6 +21,7 @@ func (handler *StoryHandler) FindByID(ctx *gin.Context) {
 	story, err := handler.service.FindByID(id)
 
 	if err != nil {
+		log.Println(err)
 		if errors.Is(err, customErrors.ErrParsingObjectID) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -28,6 +30,7 @@ func (handler *StoryHandler) FindByID(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "Story not found"})
 			return
 		}
+
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}

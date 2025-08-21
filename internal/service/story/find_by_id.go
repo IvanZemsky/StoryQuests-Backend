@@ -6,6 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-func (service *storyService) FindByID(id bson.ObjectID) (domain.Story, error) {
+func (service *storyService) FindByID(id bson.ObjectID) (domain.StoryResponse, error) {
 	return service.repo.FindByID(id)
 }

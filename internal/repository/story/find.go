@@ -1,39 +1,47 @@
 package repository
 
 import (
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"stories-backend/internal/domain/story"
 	"stories-backend/internal/repository"
-	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.Story, error) {
+func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.StoryResponse, error) {
 	ctx, cancel := repository.NewCustomRequestTimeoutContext(60)
 	defer cancel()
 
-	findOptions := options.Find()
+	pipeline := buildPipeline(&filters)
 
-	query := buildFindQuery(&filters)
-
-	sort := buildAggregateQuery(&filters)
-	if len(sort) > 0 {
-		findOptions.SetSort(sort)
-	}
-
-	setPagination(findOptions, filters.Page, filters.Limit)
-
-	cursor, err := repo.collection.Find(ctx, query, findOptions)
+	cursor, err := repo.collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var stories []domain.Story
+	var stories []domain.StoryResponse
 	if err = cursor.All(ctx, &stories); err != nil {
 		return nil, err
 	}
 
 	return stories, nil
+}
+
+func buildPipeline(filters *domain.StoryFilters) bson.A {
+	query := buildFindQuery(filters)
+
+	pipeline := bson.A{
+		bson.M{"$match": query},
+	}
+	pipeline = append(pipeline, authorPipelineWithoutMatch...)
+
+	sort := buildSortQuery(filters)
+	if len(sort) > 0 {
+		pipeline = append(pipeline, bson.M{"$sort": sort})
+	}
+
+	addPagination(&pipeline, filters.Page, filters.Limit)
+
+	return pipeline
 }
 
 func buildFindQuery(filters *domain.StoryFilters) bson.M {
@@ -71,7 +79,7 @@ func buildFindQuery(filters *domain.StoryFilters) bson.M {
 	return query
 }
 
-func buildAggregateQuery(filters *domain.StoryFilters) bson.D {
+func buildSortQuery(filters *domain.StoryFilters) bson.D {
 	sort := bson.D{}
 	if filters.Sort != "" && domain.IsValidSort(filters.Sort) {
 		switch filters.Sort {
@@ -86,7 +94,11 @@ func buildAggregateQuery(filters *domain.StoryFilters) bson.D {
 	return sort
 }
 
-func setPagination(options *options.FindOptionsBuilder, page int, limit int) {
-	options.SetSkip(int64((page - 1) * limit))
-	options.SetLimit(int64(limit))
+func addPagination(pipeline *bson.A, page int, limit int) {
+	if page > 0 && limit > 0 {
+		*pipeline = append(*pipeline,
+			bson.M{"$skip": (page - 1) * limit},
+			bson.M{"$limit": limit},
+		)
+	}
 }
