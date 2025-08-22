@@ -8,8 +8,13 @@ import (
 type storyService struct {
 	repo      domain.StoryRepository
 	sceneRepo sceneDomain.SceneRepository
+	likeRepo  domain.StoryLikeRepository
 }
 
-func NewStoryService(repo domain.StoryRepository, sceneRepo sceneDomain.SceneRepository) domain.StoryService {
-	return &storyService{repo: repo, sceneRepo: sceneRepo}
+func NewStoryService(
+	repo domain.StoryRepository,
+	sceneRepo sceneDomain.SceneRepository,
+	likeRepo domain.StoryLikeRepository,
+) domain.StoryService {
+	return &storyService{repo: repo, sceneRepo: sceneRepo, likeRepo: likeRepo}
 }

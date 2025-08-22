@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	authDomain "stories-backend/internal/domain/auth"
 	domain "stories-backend/internal/domain/story"
 	db "stories-backend/pkg/db/mongo"
 
@@ -9,12 +10,26 @@ import (
 )
 
 func (handler *StoryHandler) LikeStory(ctx *gin.Context) {
-	id, err := db.ParseObjectID(ctx.Param("id"))
+	storyID, err := db.ParseObjectID(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
+	claims, exists := ctx.Get("AUTH_CLAIMS")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	stringUserID := claims.(authDomain.JWTClaims).ID
+
+	userID, err := db.ParseObjectID(stringUserID)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
 	var body struct {
 		IsLiked bool `json:"isLiked"`
 	}
@@ -23,7 +38,8 @@ func (handler *StoryHandler) LikeStory(ctx *gin.Context) {
 	}
 
 	res, err := handler.service.Like(domain.LikeStoryDTO{
-		StoryID: id,
+		StoryID: storyID,
+		UserID:  userID,
 		IsLiked: body.IsLiked,
 	})
 	if err != nil {

@@ -11,7 +11,8 @@ func InitStoryModule(
 	init InitModuleOptions,
 	storyRepo domain.StoryRepository,
 	sceneRepo sceneDomain.SceneRepository,
+	likeRepo domain.StoryLikeRepository,
 ) {
-	storyService := service.NewStoryService(storyRepo, sceneRepo)
+	storyService := service.NewStoryService(storyRepo, sceneRepo, likeRepo)
 	handlers.NewStoryHandler(init.Router, storyService)
 }

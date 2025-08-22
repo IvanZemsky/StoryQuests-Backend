@@ -13,7 +13,7 @@ func (repo *storyRepository) Like(DTO domain.LikeStoryDTO) (domain.LikeStoryResp
 	defer cancel()
 
 	increment := 1
-	if !DTO.IsLiked {
+	if DTO.IsLiked {
 		increment = -1
 	}
 
@@ -37,6 +37,6 @@ func (repo *storyRepository) Like(DTO domain.LikeStoryDTO) (domain.LikeStoryResp
 	return domain.LikeStoryResponse{
 		StoryID: updatedStory.ID,
 		Likes:   updatedStory.Likes,
-		IsLiked: DTO.IsLiked,
+		IsLiked: !DTO.IsLiked,
 	}, nil
 }

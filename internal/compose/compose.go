@@ -7,6 +7,7 @@ import (
 	userDomain "stories-backend/internal/domain/user"
 	sceneRepository "stories-backend/internal/repository/scene"
 	storyRepository "stories-backend/internal/repository/story"
+	storyLikeRepository "stories-backend/internal/repository/story-like"
 	userRepository "stories-backend/internal/repository/user"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ type repositories struct {
 	user  userDomain.UserRepository
 	story storyDomain.StoryRepository
 	scene sceneDomain.SceneRepository
+	like  storyDomain.StoryLikeRepository
 }
 
 type InitModuleOptions struct {
@@ -29,7 +31,7 @@ func InitModules(init InitModuleOptions) {
 	repositories := initRepositories(init.Client, init.Config)
 	InitUserModule(init, repositories.user)
 	InitAuthModule(init, repositories.user)
-	InitStoryModule(init, repositories.story, repositories.scene)
+	InitStoryModule(init, repositories.story, repositories.scene, repositories.like)
 	InitSceneModule(init, repositories.scene, repositories.story)
 
 }
@@ -53,5 +55,10 @@ func initRepositories(
 		client.Database(config.Database.Name).Collection("scenes"),
 	)
 
-	return repositories{story: storyRepo, scene: sceneRepo, user: userRepo}
+	likeRepo := storyLikeRepository.NewStoryLikeRepository(
+		client.Database(config.Database.Name),
+		client.Database(config.Database.Name).Collection("stories-likes"),
+	)
+
+	return repositories{story: storyRepo, scene: sceneRepo, user: userRepo, like: likeRepo}
 }

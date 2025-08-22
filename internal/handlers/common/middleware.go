@@ -15,11 +15,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		_, err = service.ValidateToken(token)
+		claims, err := service.ValidateToken(token)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
+
+		ctx.Set("AUTH_CLAIMS", claims)
 
 		ctx.Next()
 	}

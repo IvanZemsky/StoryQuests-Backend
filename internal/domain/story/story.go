@@ -51,6 +51,7 @@ type LikeStoryResponse struct {
 
 type LikeStoryDTO struct {
 	StoryID bson.ObjectID `bson:"storyId" json:"storyId"`
+	UserID  bson.ObjectID `bson:"userId" json:"userId"`
 	IsLiked bool          `json:"isLiked"`
 }
 
