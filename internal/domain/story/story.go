@@ -33,6 +33,7 @@ type StoryResponse struct {
 	Date       time.Time `bson:"date,omitempty" json:"date"`
 	Passes     int       `bson:"passes" json:"passes"`
 	Tags       []string  `bson:"tags" json:"tags"`
+	IsLiked    bool      `bson:"isLiked" json:"isLiked"`
 }
 
 // type StoryResponse struct {
@@ -42,18 +43,6 @@ type StoryResponse struct {
 // 		Login string `bson:"login" json:"login"`
 // 	} `bson:"author" json:"author"`
 // }
-
-type LikeStoryResponse struct {
-	StoryID bson.ObjectID `bson:"storyId" json:"storyId"`
-	Likes   int           `bson:"likes" json:"likes"`
-	IsLiked bool          `bson:"isLiked" json:"isLiked"`
-}
-
-type LikeStoryDTO struct {
-	StoryID bson.ObjectID `bson:"storyId" json:"storyId"`
-	UserID  bson.ObjectID `bson:"userId" json:"userId"`
-	IsLiked bool          `json:"isLiked"`
-}
 
 type StoryService interface {
 	Find(filters StoryFilters) ([]StoryResponse, error)

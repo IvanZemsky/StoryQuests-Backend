@@ -1,5 +1,7 @@
 package domain
 
+import "go.mongodb.org/mongo-driver/v2/bson"
+
 type StoryFilters struct {
 	Search string `json:"search"`
 	// new | popular | best
@@ -8,6 +10,8 @@ type StoryFilters struct {
 	Length string `json:"length"`
 	Page   int    `json:"page"`
 	Limit  int    `json:"limit"`
+	// user setting filters
+	Me bson.ObjectID `json:"me"`
 }
 
 type GtLtFindOption struct {
@@ -22,9 +26,9 @@ type StoryLengthFilter struct {
 }
 
 var StoryLengthFilterOptions = StoryLengthFilter{
-	Short: GtLtFindOption{Gt: 0, Lt: 10},
+	Short:  GtLtFindOption{Gt: 0, Lt: 10},
 	Medium: GtLtFindOption{Gt: 10, Lt: 20},
-	Long: GtLtFindOption{Gt: 20, Lt: 30},
+	Long:   GtLtFindOption{Gt: 20, Lt: 30},
 }
 
 func IsValidLength(length string) bool {

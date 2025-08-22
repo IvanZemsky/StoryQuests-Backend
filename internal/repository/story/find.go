@@ -32,6 +32,13 @@ func buildPipeline(filters *domain.StoryFilters) bson.A {
 	pipeline := bson.A{
 		bson.M{"$match": query},
 	}
+
+	if !filters.Me.IsZero() {
+		addIsLiked(&pipeline, filters)
+	} else {
+		addZeroIsLiked(&pipeline)
+	}
+
 	pipeline = append(pipeline, authorPipelineWithoutMatch...)
 
 	sort := buildSortQuery(filters)
@@ -101,4 +108,46 @@ func addPagination(pipeline *bson.A, page int, limit int) {
 			bson.M{"$limit": limit},
 		)
 	}
+}
+
+func addIsLiked(pipeline *bson.A, filters *domain.StoryFilters) {
+	*pipeline = append(*pipeline,
+		bson.M{
+			"$lookup": bson.M{
+				"from":         "stories-likes",
+				"localField":   "_id",
+				"foreignField": "storyId",
+				"as":           "userLikes",
+				"pipeline": bson.A{
+					bson.M{
+						"$match": bson.M{
+							"userId": &filters.Me,
+						},
+					},
+				},
+			},
+		},
+		bson.M{
+			"$addFields": bson.M{
+				"isLiked": bson.M{
+					"$gt": bson.A{"$userLikes", []any{}},
+				},
+			},
+		},
+		bson.M{
+			"$project": bson.M{
+				"userLikes": 0,
+			},
+		},
+	)
+}
+
+func addZeroIsLiked(pipeline *bson.A) {
+	*pipeline = append(*pipeline,
+		bson.M{
+			"$addFields": bson.M{
+				"isLiked": false,
+			},
+		},
+	)
 }

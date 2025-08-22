@@ -4,8 +4,10 @@ import (
 	"net/http"
 	domain "stories-backend/internal/domain/story"
 	"stories-backend/internal/handlers/common"
+	db "stories-backend/pkg/db/mongo"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func (handler *StoryHandler) Find(ctx *gin.Context) {
@@ -29,6 +31,18 @@ func (handler *StoryHandler) parseStoryFilters(ctx *gin.Context) (domain.StoryFi
 	filters.Search = ctx.Query("search")
 	filters.Sort = ctx.Query("sort")
 	filters.Length = ctx.Query("length")
+
+	me := ctx.Query("me")
+	if me != "" {
+		meID, err := db.ParseObjectID(me)
+		if err != nil {
+			return filters, err
+		}
+
+		filters.Me = meID
+	} else {
+		filters.Me = bson.NilObjectID
+	}
 
 	limit, err := handlers.ParseIntQueryParam(ctx.Query("limit"), "limit", 10)
 	if err != nil {

@@ -39,6 +39,13 @@ func (repo *storyLikeRepository) RemoveLike(storyID bson.ObjectID, userID bson.O
 	return err
 }
 
+func (repo *storyLikeRepository) FindLikes(
+	storyID bson.ObjectID,
+	userID bson.ObjectID,
+) ([]domain.LikeStoryResponse, error) {
+	return nil, nil
+}
+
 func (repo *storyLikeRepository) FindLike(
 	storyID bson.ObjectID,
 	userID bson.ObjectID,
