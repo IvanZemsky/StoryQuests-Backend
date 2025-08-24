@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"stories-backend/config"
 	"stories-backend/internal/compose"
 	"stories-backend/pkg/db/mongo"
@@ -33,7 +34,7 @@ func main() {
 
 	router := gin.Default()
 
-	router.Use(commonHandlers.CORSMiddleware(config.Origin))
+	setupCORS(router, config)
 
 	compose.InitModules(compose.InitModuleOptions{Client: client, Config: config, Router: router})
 
@@ -54,4 +55,17 @@ func connectDB(URI string) *mongo.Client {
 		log.Fatalf("Failed to connect to data base: %v", err)
 	}
 	return client
+}
+
+func setupCORS(router *gin.Engine, config *config.Config) {
+	router.Use(commonHandlers.CORSMiddleware(config.Origin))
+
+	router.OPTIONS("/*any", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", config.Origin)
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, Accept, Cookie, Set-Cookie")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Expose-Headers", "Set-Cookie")
+		c.Status(http.StatusOK)
+	})
 }

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"net/http"
 	"errors"
+	"net/http"
 	domain "stories-backend/internal/domain/auth"
 	customErrors "stories-backend/pkg/errors"
 	"time"
@@ -24,5 +24,6 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "localhost", false, true)
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "", false, true)
 }

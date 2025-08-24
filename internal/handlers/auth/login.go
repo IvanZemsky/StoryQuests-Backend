@@ -29,5 +29,7 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "localhost", false, true)
+	// в отдельную функцию
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "", false, true)
 }

@@ -32,10 +32,22 @@ func AuthMiddleware() gin.HandlerFunc {
 
 func CORSMiddleware(origin string) gin.HandlerFunc {
 	return cors.New(cors.Config{
-		AllowOrigins:     []string{origin},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "DELETE", "OPTIONS", "HEAD"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
-		ExposeHeaders:    []string{"Content-Length", "Authorization"},
+		AllowOrigins: []string{origin},
+		AllowMethods: []string{"PUT", "PATCH", "GET", "POST", "DELETE", "OPTIONS", "HEAD"},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Authorization",
+			"Accept",
+			"X-Requested-With",
+			"Cookie",    
+			"Set-Cookie", 
+		},
+		ExposeHeaders: []string{
+			"Content-Length",
+			"Authorization",
+			"Set-Cookie",
+		},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	})
