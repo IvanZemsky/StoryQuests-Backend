@@ -10,6 +10,8 @@ import (
 
 	"fmt"
 
+	commonHandlers "stories-backend/internal/handlers/common"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -30,6 +32,8 @@ func main() {
 	}()
 
 	router := gin.Default()
+
+	router.Use(commonHandlers.CORSMiddleware(config.Origin))
 
 	compose.InitModules(compose.InitModuleOptions{Client: client, Config: config, Router: router})
 

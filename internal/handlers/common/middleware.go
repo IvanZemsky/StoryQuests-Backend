@@ -1,8 +1,11 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 
 	service "stories-backend/internal/service/auth"
 )
@@ -25,4 +28,15 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		ctx.Next()
 	}
+}
+
+func CORSMiddleware(origin string) gin.HandlerFunc {
+	return cors.New(cors.Config{
+		AllowOrigins:     []string{origin},
+		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "DELETE", "OPTIONS", "HEAD"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
+		ExposeHeaders:    []string{"Content-Length", "Authorization"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
 }

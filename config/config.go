@@ -12,6 +12,7 @@ type Config struct {
 		Port int    `yaml:"port"`
 		Host string `yaml:"host"`
 	} `yaml:"database"`
+	Origin string `yaml:"origin"`
 }
 
 func ReadConfig(path string) (*Config, error) {

@@ -3,3 +3,4 @@ database:
   port: 27017
   host: localhost
   name: story-quests
+origin: http://localhost:3000
