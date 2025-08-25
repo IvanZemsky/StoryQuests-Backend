@@ -30,6 +30,28 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+func GetSessionMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token, err := ctx.Cookie("token")
+		if err != nil {
+			ctx.Set("AUTH_CLAIMS", nil)
+			ctx.Next()
+			return
+		}
+
+		claims, err := service.ValidateToken(token)
+		if err != nil {
+			ctx.Set("AUTH_CLAIMS", nil)
+			ctx.Next()
+			return
+		}
+
+		ctx.Set("AUTH_CLAIMS", claims)
+		
+		ctx.Next()
+	}
+}
+
 func CORSMiddleware(origin string) gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowOrigins: []string{origin},
@@ -40,8 +62,8 @@ func CORSMiddleware(origin string) gin.HandlerFunc {
 			"Authorization",
 			"Accept",
 			"X-Requested-With",
-			"Cookie",    
-			"Set-Cookie", 
+			"Cookie",
+			"Set-Cookie",
 		},
 		ExposeHeaders: []string{
 			"Content-Length",

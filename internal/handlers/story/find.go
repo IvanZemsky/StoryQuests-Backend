@@ -32,16 +32,16 @@ func (handler *StoryHandler) parseStoryFilters(ctx *gin.Context) (domain.StoryFi
 	filters.Sort = ctx.Query("sort")
 	filters.Length = ctx.Query("length")
 
-	me := ctx.Query("me")
-	if me != "" {
-		meID, err := db.ParseObjectID(me)
-		if err != nil {
-			return filters, err
-		}
-
-		filters.Me = meID
-	} else {
+	authClaims, err := handlers.GetAuthClaims(ctx)
+	if err != nil {
 		filters.Me = bson.NilObjectID
+	} else {
+		meID, err := db.ParseObjectID(authClaims.ID)
+		if err != nil {
+			filters.Me = bson.NilObjectID
+		} else {
+			filters.Me = meID
+		}
 	}
 
 	limit, err := handlers.ParseIntQueryParam(ctx.Query("limit"), "limit", 10)
