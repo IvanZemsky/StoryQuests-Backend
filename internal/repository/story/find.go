@@ -1,29 +1,72 @@
 package repository
 
 import (
-	"go.mongodb.org/mongo-driver/v2/bson"
 	"stories-backend/internal/domain/story"
 	"stories-backend/internal/repository"
+	"sync"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.StoryResponse, error) {
+func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.StoryResponse, int32, error) {
 	ctx, cancel := repository.NewCustomRequestTimeoutContext(60)
 	defer cancel()
 
-	pipeline := buildPipeline(&filters)
+	// Создаем pipeline для данных
+	dataPipeline := buildPipeline(&filters)
 
-	cursor, err := repo.collection.Aggregate(ctx, pipeline)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
+	// Создаем pipeline для подсчета (без пагинации и сортировки)
+	countPipeline := buildCountPipeline(&filters)
 
+	// Выполняем оба запроса параллельно
+	var wg sync.WaitGroup
 	var stories []domain.StoryResponse
-	if err = cursor.All(ctx, &stories); err != nil {
-		return nil, err
+	var totalCount int32
+	var dataErr, countErr error
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		cursor, err := repo.collection.Aggregate(ctx, dataPipeline)
+		if err != nil {
+			dataErr = err
+			return
+		}
+		defer cursor.Close(ctx)
+		dataErr = cursor.All(ctx, &stories)
+	}()
+
+	go func() {
+		defer wg.Done()
+		cursor, err := repo.collection.Aggregate(ctx, countPipeline)
+		if err != nil {
+			countErr = err
+			return
+		}
+		defer cursor.Close(ctx)
+
+		var countResult []bson.M
+		if err := cursor.All(ctx, &countResult); err != nil {
+			countErr = err
+			return
+		}
+
+		if len(countResult) > 0 {
+			totalCount = countResult[0]["total"].(int32)
+		}
+	}()
+
+	wg.Wait()
+
+	if dataErr != nil {
+		return nil, 0, dataErr
+	}
+	if countErr != nil {
+		return nil, 0, countErr
 	}
 
-	return stories, nil
+	return stories, totalCount, nil
 }
 
 func buildPipeline(filters *domain.StoryFilters) bson.A {
@@ -47,6 +90,20 @@ func buildPipeline(filters *domain.StoryFilters) bson.A {
 	}
 
 	addPagination(&pipeline, filters.Page, filters.Limit)
+
+	return pipeline
+}
+
+func buildCountPipeline(filters *domain.StoryFilters) bson.A {
+	query := buildFindQuery(filters)
+
+	pipeline := bson.A{
+		bson.M{"$match": query},
+	}
+
+	pipeline = append(pipeline,
+		bson.M{"$count": "total"},
+	)
 
 	return pipeline
 }

@@ -17,11 +17,12 @@ func (handler *StoryHandler) Find(ctx *gin.Context) {
 		return
 	}
 
-	stories, err := handler.service.Find(filters)
+	stories, count, err := handler.service.Find(filters)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
+	ctx.Header("X-Total-Count", handlers.Int32ToString(count))
 	ctx.JSON(http.StatusOK, stories)
 }
 

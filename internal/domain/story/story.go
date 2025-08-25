@@ -36,6 +36,11 @@ type StoryResponse struct {
 	IsLiked    bool      `bson:"isLiked" json:"isLiked"`
 }
 
+// type GetStoryDTO struct {
+// 	Data []StoryResponse
+// 	Total int
+// }
+
 // type StoryResponse struct {
 // 	Story  `json:",inline"`
 // 	Author struct {
@@ -45,13 +50,13 @@ type StoryResponse struct {
 // }
 
 type StoryService interface {
-	Find(filters StoryFilters) ([]StoryResponse, error)
+	Find(filters StoryFilters) ([]StoryResponse, int32, error)
 	FindByID(id bson.ObjectID) (StoryResponse, error)
 	Like(LikeStoryDTO) (LikeStoryResponse, error)
 }
 
 type StoryRepository interface {
-	Find(filters StoryFilters) ([]StoryResponse, error)
+	Find(filters StoryFilters) ([]StoryResponse, int32, error)
 	FindByID(id bson.ObjectID) (StoryResponse, error)
 	StoryExists(id bson.ObjectID) (bool, error)
 	Like(LikeStoryDTO) (LikeStoryResponse, error)
