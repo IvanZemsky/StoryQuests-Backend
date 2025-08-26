@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const defaultRequestTimeout = time.Second * 30
+const defaultRequestTimeout = time.Second * 20
 
 func NewRequestTimeoutContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)

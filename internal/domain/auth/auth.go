@@ -8,7 +8,11 @@ type AuthService interface {
 }
 
 type Session struct {
-	ID string `bson:"_id" json:"id"`
+	ID    string `bson:"_id" json:"id"`
 	Login string `bson:"login" json:"login"`
 }
 
+const (
+	CTX_AUTH_CLAIMS = "AUTH_CLAIMS"
+	COOKIE_TOKEN    = "token"
+)

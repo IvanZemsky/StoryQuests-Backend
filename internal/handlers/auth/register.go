@@ -25,5 +25,5 @@ func (handler *AuthHandler) Register(ctx *gin.Context) {
 		return
 	}
 	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "", false, true)
+	ctx.SetCookie(domain.COOKIE_TOKEN, token, int(time.Hour.Seconds()), "/", "", false, true)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func GetAuthClaims(ctx *gin.Context) (authDomain.JWTClaims, error) {
-	claims, exists := ctx.Get("AUTH_CLAIMS")
+	claims, exists := ctx.Get(authDomain.CTX_AUTH_CLAIMS)
 	if !exists || claims == nil {
 		return authDomain.JWTClaims{}, errors.New("no auth claims")
 	}

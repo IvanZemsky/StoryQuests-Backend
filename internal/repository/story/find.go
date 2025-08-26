@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+	"errors"
 	"stories-backend/internal/domain/story"
 	"stories-backend/internal/repository"
 	"sync"
@@ -9,16 +11,21 @@ import (
 )
 
 func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.StoryResponse, int32, error) {
-	ctx, cancel := repository.NewCustomRequestTimeoutContext(60)
+	ctx, cancel := repository.NewRequestTimeoutContext()
 	defer cancel()
 
-	// Создаем pipeline для данных
-	dataPipeline := buildPipeline(&filters)
+	stories, totalCount, err := repo.fetchWithCount(ctx, &filters)
+	if err != nil {
+		return nil, 0, err
+	}
 
-	// Создаем pipeline для подсчета (без пагинации и сортировки)
-	countPipeline := buildCountPipeline(&filters)
+	return stories, totalCount, nil
+}
 
-	// Выполняем оба запроса параллельно
+func (repo *storyRepository) fetchWithCount(
+	ctx context.Context,
+	filters *domain.StoryFilters,
+) ([]domain.StoryResponse, int32, error) {
 	var wg sync.WaitGroup
 	var stories []domain.StoryResponse
 	var totalCount int32
@@ -28,33 +35,12 @@ func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.StoryRe
 
 	go func() {
 		defer wg.Done()
-		cursor, err := repo.collection.Aggregate(ctx, dataPipeline)
-		if err != nil {
-			dataErr = err
-			return
-		}
-		defer cursor.Close(ctx)
-		dataErr = cursor.All(ctx, &stories)
+		stories, dataErr = repo.fetchStories(ctx, filters)
 	}()
 
 	go func() {
 		defer wg.Done()
-		cursor, err := repo.collection.Aggregate(ctx, countPipeline)
-		if err != nil {
-			countErr = err
-			return
-		}
-		defer cursor.Close(ctx)
-
-		var countResult []bson.M
-		if err := cursor.All(ctx, &countResult); err != nil {
-			countErr = err
-			return
-		}
-
-		if len(countResult) > 0 {
-			totalCount = countResult[0]["total"].(int32)
-		}
+		totalCount, countErr = repo.countStories(ctx, filters)
 	}()
 
 	wg.Wait()
@@ -67,6 +53,51 @@ func (repo *storyRepository) Find(filters domain.StoryFilters) ([]domain.StoryRe
 	}
 
 	return stories, totalCount, nil
+}
+
+func (repo *storyRepository) fetchStories(
+	ctx context.Context,
+	filters *domain.StoryFilters,
+) ([]domain.StoryResponse, error) {
+	pipeline := buildPipeline(filters)
+
+	cursor, err := repo.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var stories []domain.StoryResponse
+	if err := cursor.All(ctx, &stories); err != nil {
+		return nil, err
+	}
+	return stories, nil
+}
+
+func (repo *storyRepository) countStories(ctx context.Context, filters *domain.StoryFilters) (int32, error) {
+	pipeline := buildCountPipeline(filters)
+
+	cursor, err := repo.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return 0, err
+	}
+	defer cursor.Close(ctx)
+
+	var countResult []bson.M
+	if err := cursor.All(ctx, &countResult); err != nil {
+		return 0, err
+	}
+
+	if len(countResult) > 0 {
+		if total, ok := countResult[0]["total"]; ok {
+			if count, ok := total.(int32); ok {
+				return count, nil
+			}
+			return 0, errors.New("field 'total' is not int32")
+		}
+		return 0, errors.New("field 'total' not found")
+	}
+	return 0, nil
 }
 
 func buildPipeline(filters *domain.StoryFilters) bson.A {

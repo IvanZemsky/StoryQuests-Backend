@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"stories-backend/internal/domain/story"
-	handlers "stories-backend/internal/handlers/common"
+	authHandlers "stories-backend/internal/handlers/auth"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,9 +14,9 @@ type StoryHandler struct {
 func NewStoryHandler(r *gin.Engine, service domain.StoryService) *StoryHandler {
 	handler := StoryHandler{service: service}
 
-	r.GET("/stories", handlers.GetSessionMiddleware(), handler.Find)
-	r.GET("/stories/:id", handlers.GetSessionMiddleware(), handler.FindByID)
-	r.PATCH("/stories/:id/like", handlers.AuthMiddleware(), handler.LikeStory)
+	r.GET("/stories", authHandlers.GetSessionMiddleware(), handler.Find)
+	r.GET("/stories/:id", authHandlers.GetSessionMiddleware(), handler.FindByID)
+	r.PATCH("/stories/:id/like", authHandlers.AuthMiddleware(), handler.LikeStory)
 
 	return &handler
 }

@@ -31,5 +31,5 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 	}
 	// в отдельную функцию
 	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie("token", token, int(time.Hour.Seconds()), "/", "", false, true)
+	ctx.SetCookie(domain.COOKIE_TOKEN, token, int(time.Hour.Seconds()), "/", "", false, true)
 }
