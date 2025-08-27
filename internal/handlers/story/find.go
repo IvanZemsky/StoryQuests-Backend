@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	domain "stories-backend/internal/domain/story"
 	"stories-backend/internal/handlers/common"
@@ -19,6 +20,7 @@ func (handler *StoryHandler) Find(ctx *gin.Context) {
 
 	stories, count, err := handler.service.Find(filters)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}

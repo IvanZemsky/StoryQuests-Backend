@@ -21,3 +21,41 @@ var authorPipelineWithoutMatch = bson.A{
 		},
 	},
 }
+
+var zeroIsLikedPipeline = bson.M{
+	"$addFields": bson.M{
+		"isLiked": false,
+	},
+}
+
+func getIsLikedPipeline(me bson.ObjectID) bson.A {
+	return bson.A{
+		bson.M{
+			"$lookup": bson.M{
+				"from":         "stories-likes",
+				"localField":   "_id",
+				"foreignField": "storyId",
+				"as":           "userLikes",
+				"pipeline": bson.A{
+					bson.M{
+						"$match": bson.M{
+							"userId": me,
+						},
+					},
+				},
+			},
+		},
+		bson.M{
+			"$addFields": bson.M{
+				"isLiked": bson.M{
+					"$gt": bson.A{"$userLikes", []any{}},
+				},
+			},
+		},
+		bson.M{
+			"$project": bson.M{
+				"userLikes": 0,
+			},
+		},
+	}
+}

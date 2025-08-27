@@ -4,21 +4,26 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	domain "stories-backend/internal/domain/story"
+	handlers "stories-backend/internal/handlers/common"
 	db "stories-backend/pkg/db/mongo"
 	customErrors "stories-backend/pkg/errors"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func (handler *StoryHandler) FindByID(ctx *gin.Context) {
-	id, err := db.ParseObjectID(ctx.Param("id"))
+	params := domain.FindOneStoryParams{}
+
+	err := parseParams(ctx, &params)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	story, err := handler.service.FindByID(id)
+	story, err := handler.service.FindByID(params)
 
 	if err != nil {
 		log.Println(err)
@@ -36,4 +41,26 @@ func (handler *StoryHandler) FindByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, story)
+}
+
+func parseParams(ctx *gin.Context, params *domain.FindOneStoryParams) error {
+	id, err := db.ParseObjectID(ctx.Param("id"))
+	if err != nil {
+		return err
+	}
+	params.ID = id
+
+	authClaims, err := handlers.GetAuthClaims(ctx)
+	if err != nil {
+		params.Me = bson.NilObjectID
+	} else {
+		meID, err := db.ParseObjectID(authClaims.ID)
+		if err != nil {
+			params.Me = bson.NilObjectID
+		} else {
+			params.Me = meID
+		}
+	}
+
+	return nil
 }

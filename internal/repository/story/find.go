@@ -199,43 +199,9 @@ func addPagination(pipeline *bson.A, page int, limit int) {
 }
 
 func addIsLiked(pipeline *bson.A, filters *domain.StoryFilters) {
-	*pipeline = append(*pipeline,
-		bson.M{
-			"$lookup": bson.M{
-				"from":         "stories-likes",
-				"localField":   "_id",
-				"foreignField": "storyId",
-				"as":           "userLikes",
-				"pipeline": bson.A{
-					bson.M{
-						"$match": bson.M{
-							"userId": &filters.Me,
-						},
-					},
-				},
-			},
-		},
-		bson.M{
-			"$addFields": bson.M{
-				"isLiked": bson.M{
-					"$gt": bson.A{"$userLikes", []any{}},
-				},
-			},
-		},
-		bson.M{
-			"$project": bson.M{
-				"userLikes": 0,
-			},
-		},
-	)
+	*pipeline = append(*pipeline, getIsLikedPipeline(filters.Me)...)
 }
 
 func addZeroIsLiked(pipeline *bson.A) {
-	*pipeline = append(*pipeline,
-		bson.M{
-			"$addFields": bson.M{
-				"isLiked": false,
-			},
-		},
-	)
+	*pipeline = append(*pipeline, zeroIsLikedPipeline)
 }
