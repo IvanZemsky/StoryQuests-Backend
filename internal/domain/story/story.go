@@ -4,7 +4,23 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	sceneDomain "stories-backend/internal/domain/scene"
 )
+
+type StoryService interface {
+	Find(filters StoryFilters) ([]StoryResponse, int32, error)
+	FindByID(params FindOneStoryParams) (StoryResponse, error)
+	Like(LikeStoryDTO) (LikeStoryResponse, error)
+	Create(storyDTO CreateStoryDTO, scenesDTO []sceneDomain.CreateSceneDTO) (bson.ObjectID, error)
+}
+
+type StoryRepository interface {
+	Find(filters StoryFilters) ([]StoryResponse, int32, error)
+	FindByID(params FindOneStoryParams) (StoryResponse, error)
+	StoryExists(id bson.ObjectID) (bool, error)
+	Like(dto LikeStoryDTO) (LikeStoryResponse, error)
+	Create(dto CreateStoryDTO) (bson.ObjectID, error)
+}
 
 type Story struct {
 	ID          bson.ObjectID `bson:"_id,omitempty" json:"id"`
@@ -53,16 +69,3 @@ type FindOneStoryParams struct {
 // 		Login string `bson:"login" json:"login"`
 // 	} `bson:"author" json:"author"`
 // }
-
-type StoryService interface {
-	Find(filters StoryFilters) ([]StoryResponse, int32, error)
-	FindByID(params FindOneStoryParams) (StoryResponse, error)
-	Like(LikeStoryDTO) (LikeStoryResponse, error)
-}
-
-type StoryRepository interface {
-	Find(filters StoryFilters) ([]StoryResponse, int32, error)
-	FindByID(params FindOneStoryParams) (StoryResponse, error)
-	StoryExists(id bson.ObjectID) (bool, error)
-	Like(LikeStoryDTO) (LikeStoryResponse, error)
-}
