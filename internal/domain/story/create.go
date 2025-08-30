@@ -16,7 +16,6 @@ type CreateStoryDTO struct {
 type CreateStoryInfoBody struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
-	AuthorID    string   `json:"author"`
 	SceneCount  int      `json:"sceneCount"`
 	Img         string   `json:"img"`
 	Tags        []string `json:"tags"`

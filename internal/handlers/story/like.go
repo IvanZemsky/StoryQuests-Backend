@@ -16,7 +16,7 @@ func (handler *StoryHandler) LikeStory(ctx *gin.Context) {
 		return
 	}
 
-	claims, exists := ctx.Get("AUTH_CLAIMS")
+	claims, exists := ctx.Get(authDomain.CTX_AUTH_CLAIMS)
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return

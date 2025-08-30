@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
+	authDomain "stories-backend/internal/domain/auth"
 	sceneDomain "stories-backend/internal/domain/scene"
 	domain "stories-backend/internal/domain/story"
 	db "stories-backend/pkg/db/mongo"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func (handler *StoryHandler) Create(ctx *gin.Context) {
@@ -17,27 +18,49 @@ func (handler *StoryHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	storyDTO, err := createCreateStoryDTO(body.StoryInfo)
+	userID, err := getUserID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	story, err := handler.service.Create(storyDTO, body.Scenes)
+	storyDTO, err := createCreateStoryDTO(body.StoryInfo, userID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, story)
+
+	storyID, err := handler.service.Create(storyDTO, body.Scenes)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
+	ctx.JSON(http.StatusOK, CreateStoryResponse{
+		StoryID: storyID.Hex(),
+	})
 }
 
-func createCreateStoryDTO(storyInfoFromBody domain.CreateStoryInfoBody) (domain.CreateStoryDTO, error) {
-	authorId, err := db.ParseObjectID(storyInfoFromBody.AuthorID)
-	if err != nil {
-		log.Println(err)
-		return domain.CreateStoryDTO{}, err
+func getUserID(ctx *gin.Context) (bson.ObjectID, error) {
+	claims, exists := ctx.Get(authDomain.CTX_AUTH_CLAIMS)
+	if !exists {
+		return bson.ObjectID{}, nil
 	}
 
+	stringUserID := claims.(authDomain.JWTClaims).ID
+
+	userID, err := db.ParseObjectID(stringUserID)
+	if err != nil {
+		return bson.ObjectID{}, err
+	}
+
+	return userID, nil
+}
+
+func createCreateStoryDTO(
+	storyInfoFromBody domain.CreateStoryInfoBody,
+	authorId bson.ObjectID,
+	) (domain.CreateStoryDTO, error) {
 	return domain.CreateStoryDTO{
 		Name:        storyInfoFromBody.Name,
 		Description: storyInfoFromBody.Description,
@@ -49,6 +72,10 @@ func createCreateStoryDTO(storyInfoFromBody domain.CreateStoryInfoBody) (domain.
 }
 
 type createStoryBody struct {
-	StoryInfo domain.CreateStoryInfoBody `json:"storyInfo"`
+	StoryInfo domain.CreateStoryInfoBody   `json:"storyInfo"`
 	Scenes    []sceneDomain.CreateSceneDTO `json:"scenes"`
+}
+
+type CreateStoryResponse struct {
+	StoryID string `json:"storyId"`
 }
