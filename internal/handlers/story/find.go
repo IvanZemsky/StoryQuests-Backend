@@ -59,5 +59,12 @@ func (handler *StoryHandler) parseStoryFilters(ctx *gin.Context) (domain.StoryFi
 	}
 	filters.Page = page
 
+	byUserID, err := db.ParseObjectID(ctx.Query("byUserId"))
+	if err != nil {
+		filters.ByUserID = bson.NilObjectID
+	} else {
+		filters.ByUserID = byUserID
+	}
+
 	return filters, nil
 }

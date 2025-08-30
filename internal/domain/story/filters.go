@@ -7,9 +7,10 @@ type StoryFilters struct {
 	// new | popular | best
 	Sort string `json:"sort"`
 	// short | medium | long
-	Length string `json:"length"`
-	Page   int    `json:"page"`
-	Limit  int    `json:"limit"`
+	Length   string        `json:"length"`
+	Page     int           `json:"page"`
+	Limit    int           `json:"limit"`
+	ByUserID bson.ObjectID `json:"byUserId"`
 	// user setting filters
 	Me bson.ObjectID `json:"me"`
 }

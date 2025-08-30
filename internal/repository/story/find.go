@@ -171,6 +171,10 @@ func buildFindQuery(filters *domain.StoryFilters) bson.M {
 		}
 	}
 
+	if filters.ByUserID != bson.NilObjectID {
+		query["author"] = filters.ByUserID
+	}
+
 	return query
 }
 
