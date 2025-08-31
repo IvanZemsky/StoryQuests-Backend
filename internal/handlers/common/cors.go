@@ -23,6 +23,7 @@ func CORSMiddleware(origin string) gin.HandlerFunc {
 		ExposeHeaders: []string{
 			"Content-Length",
 			"Authorization",
+			"X-Total-Count",
 			"Set-Cookie",
 		},
 		AllowCredentials: true,

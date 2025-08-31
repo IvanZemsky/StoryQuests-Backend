@@ -24,6 +24,7 @@ func (handler *StoryHandler) Find(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
+
 	ctx.Header("X-Total-Count", handlers.Int32ToString(count))
 	ctx.JSON(http.StatusOK, stories)
 }
