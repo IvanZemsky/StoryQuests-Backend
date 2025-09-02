@@ -12,6 +12,7 @@ type StoryService interface {
 	FindByID(params FindOneStoryParams) (StoryResponse, error)
 	Like(LikeStoryDTO) (LikeStoryResponse, error)
 	Create(storyDTO CreateStoryDTO, scenesDTO []sceneDomain.CreateSceneDTO) (bson.ObjectID, error)
+	IncrementPasses(storyID bson.ObjectID) error
 }
 
 type StoryRepository interface {
@@ -20,6 +21,7 @@ type StoryRepository interface {
 	StoryExists(id bson.ObjectID) (bool, error)
 	Like(dto LikeStoryDTO) (LikeStoryResponse, error)
 	Create(dto CreateStoryDTO) (bson.ObjectID, error)
+	IncrementPasses(storyID bson.ObjectID) error
 }
 
 type Story struct {

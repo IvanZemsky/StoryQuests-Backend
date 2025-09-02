@@ -17,6 +17,7 @@ func NewStoryHandler(r *gin.Engine, service domain.StoryService) *StoryHandler {
 	r.GET("/stories", authHandlers.GetSessionMiddleware(), handler.Find)
 	r.GET("/stories/:id", authHandlers.GetSessionMiddleware(), handler.FindByID)
 	r.PATCH("/stories/:id/like", authHandlers.AuthMiddleware(), handler.LikeStory)
+	r.PATCH("/stories/:id/passes", handler.IncrementPasses)
 	r.POST("/stories/create", authHandlers.AuthMiddleware(), handler.Create)
 
 	return &handler
