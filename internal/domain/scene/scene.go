@@ -2,13 +2,17 @@ package domain
 
 import "go.mongodb.org/mongo-driver/v2/bson"
 
-type SceneRepository interface {
-	FindByStoryID(storyID bson.ObjectID) ([]Scene, error)
-	CreateForStory(storyID bson.ObjectID, dto []CreateSceneDTO) error
+type SceneService interface {
+	FindInStoryByID(storyID bson.ObjectID, sceneID bson.ObjectID) (Scene, error)
+	FindByStoryID(id bson.ObjectID) ([]Scene, error)
+	IncrementPasses(sceneID bson.ObjectID) error
 }
 
-type SceneService interface {
-	FindByStoryID(id bson.ObjectID) ([]Scene, error)
+type SceneRepository interface {
+	FindByID(sceneID bson.ObjectID) (Scene, error)
+	FindByStoryID(storyID bson.ObjectID) ([]Scene, error)
+	CreateForStory(storyID bson.ObjectID, dto []CreateSceneDTO) error
+	IncrementPasses(sceneID bson.ObjectID) error
 }
 
 type Scene struct {
@@ -20,6 +24,7 @@ type Scene struct {
 	Img         string        `bson:"img" json:"img"`
 	// default | end
 	Type    string        `bson:"type" json:"type"`
+	Passes  *int          `bson:"passes,omitempty" json:"passes"`
 	Answers []SceneAnswer `bson:"answers" json:"answers"`
 }
 

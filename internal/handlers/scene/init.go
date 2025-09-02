@@ -14,6 +14,7 @@ func NewSceneHandler(r *gin.Engine, service domain.SceneService) *SceneHandler {
 	handler := SceneHandler{service: service}
 
 	r.GET("/stories/:id/scenes", handler.FindByStoryID)
+	r.PATCH("/stories/:id/scenes/:sceneId/passes", handler.IncrementPasses)
 
 	return &handler
 }
