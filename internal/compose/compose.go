@@ -48,6 +48,7 @@ func initRepositories(
 	storyRepo := storyRepository.NewStoryRepository(
 		client.Database(config.Database.Name),
 		client.Database(config.Database.Name).Collection("stories"),
+		client.Database(config.Database.Name).Collection("stories-results"),
 	)
 
 	sceneRepo := sceneRepository.NewSceneRepository(

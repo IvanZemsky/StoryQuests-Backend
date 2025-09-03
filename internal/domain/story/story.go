@@ -13,6 +13,9 @@ type StoryService interface {
 	Like(LikeStoryDTO) (LikeStoryResponse, error)
 	Create(storyDTO CreateStoryDTO, scenesDTO []sceneDomain.CreateSceneDTO) (bson.ObjectID, error)
 	IncrementPasses(storyID bson.ObjectID) error
+	SetResult(setResultDTO SetResultDTO) (StoryResult, error)
+	FindResultsByStoryID(storyID bson.ObjectID) ([]StoryResult, error)
+	FindResultByUserIDAndStoryID(userID bson.ObjectID, storyID bson.ObjectID) (StoryResult, error)
 }
 
 type StoryRepository interface {
@@ -22,6 +25,10 @@ type StoryRepository interface {
 	Like(dto LikeStoryDTO) (LikeStoryResponse, error)
 	Create(dto CreateStoryDTO) (bson.ObjectID, error)
 	IncrementPasses(storyID bson.ObjectID) error
+	CreateResult(setResultDTO SetResultDTO) (StoryResult, error)
+	UpdateResult(setResultDTO SetResultDTO) (StoryResult, error)
+	FindResultByUserIDAndStoryID(userID bson.ObjectID, storyID bson.ObjectID) (StoryResult, error)
+	FindResultsByStoryID(storyID bson.ObjectID) ([]StoryResult, error)
 }
 
 type Story struct {

@@ -2,10 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	authDomain "stories-backend/internal/domain/auth"
 	sceneDomain "stories-backend/internal/domain/scene"
 	domain "stories-backend/internal/domain/story"
-	db "stories-backend/pkg/db/mongo"
+	handlers "stories-backend/internal/handlers/common"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -18,7 +17,7 @@ func (handler *StoryHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	userID, err := getUserID(ctx)
+	userID, err := handlers.GetUserID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -39,22 +38,6 @@ func (handler *StoryHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, CreateStoryResponse{
 		StoryID: storyID.Hex(),
 	})
-}
-
-func getUserID(ctx *gin.Context) (bson.ObjectID, error) {
-	claims, exists := ctx.Get(authDomain.CTX_AUTH_CLAIMS)
-	if !exists {
-		return bson.ObjectID{}, nil
-	}
-
-	stringUserID := claims.(authDomain.JWTClaims).ID
-
-	userID, err := db.ParseObjectID(stringUserID)
-	if err != nil {
-		return bson.ObjectID{}, err
-	}
-
-	return userID, nil
 }
 
 func createCreateStoryDTO(
