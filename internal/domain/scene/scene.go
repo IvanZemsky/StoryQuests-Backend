@@ -3,9 +3,9 @@ package domain
 import "go.mongodb.org/mongo-driver/v2/bson"
 
 type SceneService interface {
-	FindInStoryByID(storyID bson.ObjectID, sceneID bson.ObjectID) (Scene, error)
 	FindByStoryID(id bson.ObjectID) ([]Scene, error)
 	IncrementPasses(sceneID bson.ObjectID) error
+	FindEndScenesByStoryID(storyID bson.ObjectID) ([]Scene, error)
 }
 
 type SceneRepository interface {
@@ -13,6 +13,7 @@ type SceneRepository interface {
 	FindByStoryID(storyID bson.ObjectID) ([]Scene, error)
 	CreateForStory(storyID bson.ObjectID, dto []CreateSceneDTO) error
 	IncrementPasses(sceneID bson.ObjectID) error
+	FindEndScenesByStoryID(storyID bson.ObjectID) ([]Scene, error)
 }
 
 type Scene struct {
