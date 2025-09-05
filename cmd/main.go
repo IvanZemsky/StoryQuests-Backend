@@ -15,8 +15,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	_ "stories-backend/docs"
 )
 
+// @title           Story Quests API
+// @version         1.0
+// @description     API for StoryQuests web site
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
 func main() {
 	config := readConfig("config/config.yml")
 
@@ -34,6 +51,7 @@ func main() {
 
 	router := gin.Default()
 
+	setupSwagger(router)
 	setupCORS(router, config)
 
 	compose.InitModules(compose.InitModuleOptions{Client: client, Config: config, Router: router})
@@ -68,4 +86,8 @@ func setupCORS(router *gin.Engine, config *config.Config) {
 		c.Header("Access-Control-Expose-Headers", "Set-Cookie")
 		c.Status(http.StatusOK)
 	})
+}
+
+func setupSwagger(router *gin.Engine) {
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
