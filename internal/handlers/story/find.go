@@ -4,13 +4,29 @@ import (
 	"log"
 	"net/http"
 	domain "stories-backend/internal/domain/story"
-	"stories-backend/internal/handlers/common"
+	handlers "stories-backend/internal/handlers/common"
 	db "stories-backend/pkg/db/mongo"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
+// @Summary Find stories
+// @Description Retrieves stories with optional filtering and pagination (default length is 10)
+// @Tags Story
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of items per page" default(10)
+// @Param sort query string false "Sort field" default(created_at)
+// @Param order query string false "Sort order" Enums(asc, desc) default(desc)
+// @Param search query string false "Search query"
+// @Param category query string false "Category filter"
+// @Param status query string false "Status filter" Enums(active, inactive, draft)
+// @Success 200 {array} domain.Story "Stories retrieved successfully"
+// @Failure 400 {object} handlers.BaseErrorResponse "Invalid filter parameters"
+// @Failure 500 {object} handlers.BaseErrorResponse "Internal server error"
+// @Security ApiKeyAuth
+// @Router /stories [get]
 func (handler *StoryHandler) Find(ctx *gin.Context) {
 	filters, err := handler.parseStoryFilters(ctx)
 	if err != nil {

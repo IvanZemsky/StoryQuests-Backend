@@ -16,5 +16,578 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "paths": {}
+    "paths": {
+        "/stories": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves stories with optional filtering and pagination (default length is 10)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Find stories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category filter",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "active",
+                            "inactive",
+                            "draft"
+                        ],
+                        "type": "string",
+                        "description": "Status filter",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Stories retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Story"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid filter parameters",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Create story",
+                "parameters": [
+                    {
+                        "description": "Story info",
+                        "name": "storyInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateStoryInfoBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/stories/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves a specific story by its unique identifier",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Get story by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Story retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Story"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format or parameters",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Story not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stories/{id}/like": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Toggles like status for a story by authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Like or unlike a story",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Like status",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.LikeStoryDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Like status updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.LikeStoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid story ID or request body",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stories/{id}/passes": {
+            "patch": {
+                "description": "Increments the number of passes for a specific story",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Increment story passes counter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Passes counter incremented successfully"
+                    },
+                    "400": {
+                        "description": "Invalid story ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stories/{id}/results": {
+            "get": {
+                "description": "Retrieves all results for a specific story",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Get results by story ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Results retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.GetStoryResult"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid story ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates or updates a user's result for a specific story scene",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Create or update story result",
+                "parameters": [
+                    {
+                        "description": "Result data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.createResultBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Result created/updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.GetStoryResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stories/{id}/results/{user_id}": {
+            "get": {
+                "description": "Retrieves a specific user's result for a particular story",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story"
+                ],
+                "summary": "Get user result for a story",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User result retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.GetStoryResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Result not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.CreateStoryInfoBody": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "img": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sceneCount": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "domain.GetStoryResult": {
+            "type": "object",
+            "properties": {
+                "datetime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "sceneId": {
+                    "type": "string"
+                },
+                "storyId": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.LikeStoryDTO": {
+            "type": "object",
+            "properties": {
+                "isLiked": {
+                    "type": "boolean"
+                },
+                "storyId": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.LikeStoryResponse": {
+            "type": "object",
+            "properties": {
+                "isLiked": {
+                    "type": "boolean"
+                },
+                "likes": {
+                    "type": "integer"
+                },
+                "storyId": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Story": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "img": {
+                    "type": "string"
+                },
+                "likes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "passes": {
+                    "type": "integer"
+                },
+                "sceneCount": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "handlers.BaseErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.createResultBody": {
+            "type": "object",
+            "properties": {
+                "sceneId": {
+                    "type": "string"
+                },
+                "storyId": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }

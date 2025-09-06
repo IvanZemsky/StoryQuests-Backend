@@ -4,12 +4,24 @@ import (
 	"net/http"
 	db "stories-backend/pkg/db/mongo"
 
-	"stories-backend/internal/domain/story"
+	domain "stories-backend/internal/domain/story"
 	handlers "stories-backend/internal/handlers/common"
 
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create or update story result
+// @Description Creates or updates a user's result for a specific story scene
+// @Tags Story
+// @Accept json
+// @Produce json
+// @Param request body createResultBody true "Result data"
+// @Success 201 {object} domain.GetStoryResult "Result created/updated successfully"
+// @Failure 400 {object} handlers.BaseErrorResponse "Invalid request body or ID format"
+// @Failure 401 {object} handlers.BaseErrorResponse "Unauthorized"
+// @Failure 500 {object} handlers.BaseErrorResponse "Internal server error"
+// @Security ApiKeyAuth
+// @Router /stories/{id}/results [put]
 func (handler *StoryHandler) CreateResult(ctx *gin.Context) {
 	var body createResultBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -45,7 +57,7 @@ func (handler *StoryHandler) CreateResult(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusCreated, result)
 }
 
 type createResultBody struct {

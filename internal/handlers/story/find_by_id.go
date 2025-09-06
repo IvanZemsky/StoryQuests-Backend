@@ -14,6 +14,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
+// @Summary Get story by ID
+// @Description Retrieves a specific story by its unique identifier
+// @Tags Story
+// @Produce json
+// @Param id path string true "Story ID" format(mongoId)
+// @Success 200 {object} domain.Story "Story retrieved successfully"
+// @Failure 400 {object} handlers.BaseErrorResponse "Invalid ID format or parameters"
+// @Failure 404 {object} handlers.BaseErrorResponse "Story not found"
+// @Failure 500 {object} handlers.BaseErrorResponse "Internal server error"
+// @Security ApiKeyAuth
+// @Router /stories/{id} [get]
 func (handler *StoryHandler) FindByID(ctx *gin.Context) {
 	params := domain.FindOneStoryParams{}
 

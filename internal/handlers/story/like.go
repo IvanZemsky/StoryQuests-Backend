@@ -9,6 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Like or unlike a story
+// @Description Toggles like status for a story by authenticated user
+// @Tags Story
+// @Accept json
+// @Produce json
+// @Param id path string true "Story ID" format(mongoId)
+// @Param request body domain.LikeStoryDTO true "Like status"
+// @Success 200 {object} domain.LikeStoryResponse "Like status updated successfully"
+// @Failure 400 {object} handlers.BaseErrorResponse "Invalid story ID or request body"
+// @Failure 401 {object} handlers.BaseErrorResponse "Unauthorized"
+// @Failure 500 {object} handlers.BaseErrorResponse "Internal server error"
+// @Security ApiKeyAuth
+// @Router /stories/{id}/like [patch]
 func (handler *StoryHandler) LikeStory(ctx *gin.Context) {
 	storyID, err := db.ParseObjectID(ctx.Param("id"))
 	if err != nil {

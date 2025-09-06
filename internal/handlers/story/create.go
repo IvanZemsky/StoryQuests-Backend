@@ -10,6 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
+// @Summary Create story
+// @Description Create story
+// @Tags Story
+// @Accept json
+// @Produce json
+// @Param storyInfo body domain.CreateStoryInfoBody true "Story info"
+// @Success 201
+// @Failure 400
+// @Router /stories [post]
 func (handler *StoryHandler) Create(ctx *gin.Context) {
 	var body createStoryBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -35,7 +44,7 @@ func (handler *StoryHandler) Create(ctx *gin.Context) {
 		return
 	}
 	
-	ctx.JSON(http.StatusOK, CreateStoryResponse{
+	ctx.JSON(http.StatusCreated, CreateStoryResponse{
 		StoryID: storyID.Hex(),
 	})
 }
