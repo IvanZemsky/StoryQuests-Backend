@@ -259,6 +259,44 @@ paths:
       summary: Like or unlike a story
       tags:
       - Story
+  /stories/{id}/my-result:
+    get:
+      description: Retrieves the authenticated user's result for a specific story
+      parameters:
+      - description: Story ID
+        format: mongoId
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User result retrieved successfully
+          schema:
+            $ref: '#/definitions/domain.GetStoryResult'
+        "400":
+          description: Invalid story ID format
+          schema:
+            $ref: '#/definitions/handlers.BaseErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.BaseErrorResponse'
+        "404":
+          description: Result not found
+          schema:
+            $ref: '#/definitions/handlers.BaseErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.BaseErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get my result for a story
+      tags:
+      - stories
   /stories/{id}/passes:
     patch:
       description: Increments the number of passes for a specific story

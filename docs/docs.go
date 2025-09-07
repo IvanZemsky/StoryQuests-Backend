@@ -271,6 +271,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/stories/{id}/my-result": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves the authenticated user's result for a specific story",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Get my result for a story",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "mongoId",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User result retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/domain.GetStoryResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid story ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Result not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stories/{id}/passes": {
             "patch": {
                 "description": "Increments the number of passes for a specific story",
