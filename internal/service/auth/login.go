@@ -2,7 +2,7 @@ package service
 
 import (
 	domain "stories-backend/internal/domain/auth"
-	customErrors "stories-backend/pkg/errors"
+	commonErrors "stories-backend/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -10,12 +10,12 @@ import (
 func (s *authService) Login(dto domain.LoginDTO) (string, error) {
 	user, err := s.userRepo.FindByLogin(dto.Login)
 	if err != nil {
-		return "", customErrors.ErrLoginUserNotFound
+		return "", commonErrors.ErrNotFound
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(dto.Password)); err != nil {
-		if (err == bcrypt.ErrMismatchedHashAndPassword) {
-			return "", customErrors.ErrMismatchedPassword
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return "", commonErrors.ErrMismatchedPassword
 		}
 		return "", err
 	}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 	db "stories-backend/pkg/db/mongo"
-	customErrors "stories-backend/pkg/errors"
+	commonErrors "stories-backend/pkg/errors"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -20,7 +20,7 @@ func (handler *UserHandler) FindByID(ctx *gin.Context) {
 	user, err := handler.service.FindByID(id)
 
 	if err != nil {
-		if errors.Is(err, customErrors.ErrParsingObjectID) {
+		if errors.Is(err, commonErrors.ErrParsingObjectID) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
