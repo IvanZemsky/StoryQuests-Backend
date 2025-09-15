@@ -3,4 +3,9 @@ database:
   port: 27017
   host: localhost
   name: story-quests
+  username: currypie
+  password: 1dfgd4lkgjdf2lkf
+  cluster_code: cluster0.8lxvluv.mongodb.net
+  cluster_name: Cluster0
+db_type: cluster # or local
 origin: http://localhost:3000

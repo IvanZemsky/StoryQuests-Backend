@@ -8,10 +8,15 @@ import (
 type Config struct {
 	Port     int `yaml:"port"`
 	Database struct {
-		Name string `yaml:"name"`
-		Port int    `yaml:"port"`
-		Host string `yaml:"host"`
+		Name        string `yaml:"name"`
+		Port        int    `yaml:"port"`
+		Host        string `yaml:"host"`
+		UserName    string `yaml:"username"`
+		Password    string `yaml:"password"`
+		ClusterCode string `yaml:"cluster_code"`
+		ClusterName string `yaml:"cluster_name"`
 	} `yaml:"database"`
+	DBType string `yaml:"db_type"`
 	Origin string `yaml:"origin"`
 }
 

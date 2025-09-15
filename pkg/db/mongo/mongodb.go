@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 	"stories-backend/config"
 	"time"
 
@@ -28,5 +29,20 @@ func NewMongoDB(URI string) (*mongo.Client, error) {
 }
 
 func GetConnectionString(config *config.Config) string {
-	return "mongodb://" + config.Database.Host + ":" + fmt.Sprint(config.Database.Port)
+	switch config.DBType {
+	case "cluster":
+		return fmt.Sprintf(
+			"mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority&appName=%s",
+			config.Database.UserName,
+			config.Database.Password,
+			config.Database.ClusterCode,
+			config.Database.Name,
+			config.Database.ClusterName,
+		)
+	case "local":
+		return fmt.Sprintf("mongodb://%s:%d", config.Database.Host, config.Database.Port)
+	default:
+		log.Fatal("Unknown connection type")
+		return ""
+	}
 }
