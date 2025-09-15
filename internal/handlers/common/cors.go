@@ -18,7 +18,6 @@ func CORSMiddleware(origin string) gin.HandlerFunc {
 			"Accept",
 			"X-Requested-With",
 			"Cookie",
-			"Set-Cookie",
 		},
 		ExposeHeaders: []string{
 			"Content-Length",
