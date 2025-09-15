@@ -4,9 +4,11 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"stories-backend/config"
 	"stories-backend/internal/compose"
 	"stories-backend/pkg/db/mongo"
+	"strconv"
 	"time"
 
 	"fmt"
@@ -16,9 +18,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
+	_ "stories-backend/docs"
+
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	_ "stories-backend/docs"
 )
 
 // @title           Story Quests API
@@ -60,11 +63,53 @@ func main() {
 }
 
 func readConfig(path string) *config.Config {
-	config, err := config.ReadConfig(path)
+	cfg, err := config.ReadConfig(path)
 	if err != nil {
-		log.Fatalf("Failed to read config: %v", err)
+		log.Printf("Config file not found (%v). Using defaults & env vars.", err)
+		cfg = &config.Config{}
 	}
-	return config
+
+	// PORT (Render обязательно передаёт)
+	if portStr := os.Getenv("PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil {
+			cfg.Port = port
+		} else {
+			log.Fatalf("Invalid PORT value: %v", err)
+		}
+	}
+
+	if origin := os.Getenv("ORIGIN"); origin != "" {
+		cfg.Origin = origin
+	}
+
+	if dbType := os.Getenv("DB_TYPE"); dbType != "" {
+		cfg.DBType = dbType
+	}
+	if host := os.Getenv("DB_HOST"); host != "" {
+		cfg.Database.Host = host
+	}
+	if name := os.Getenv("DB_NAME"); name != "" {
+		cfg.Database.Name = name
+	}
+	if user := os.Getenv("DB_USER"); user != "" {
+		cfg.Database.UserName = user
+	}
+	if pass := os.Getenv("DB_PASS"); pass != "" {
+		cfg.Database.Password = pass
+	}
+	if cluster := os.Getenv("DB_CLUSTER"); cluster != "" {
+		cfg.Database.ClusterCode = cluster
+	}
+	if clusterName := os.Getenv("DB_CLUSTER_NAME"); clusterName != "" {
+		cfg.Database.ClusterName = clusterName
+	}
+	if dbPort := os.Getenv("DB_PORT"); dbPort != "" {
+		if port, err := strconv.Atoi(dbPort); err == nil {
+			cfg.Database.Port = port
+		}
+	}
+
+	return cfg
 }
 
 func connectDB(URI string) *mongo.Client {
