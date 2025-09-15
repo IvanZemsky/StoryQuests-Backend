@@ -10,11 +10,27 @@ import (
 )
 
 func setTokenToCookie(ctx *gin.Context, token string) {
-	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie(domain.COOKIE_TOKEN, token, int(time.Hour.Seconds()), "/", "", false, true)
+	ctx.SetSameSite(http.SameSiteNoneMode)
+	ctx.SetCookie(
+		domain.COOKIE_TOKEN,
+		token,
+		int(time.Hour.Seconds()),
+		"/",
+		"storyquests-frontend.onrender.com", 
+		true,
+		true,
+	)
 }
 
 func removeTokenFromCookie(ctx *gin.Context) {
-	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie(domain.COOKIE_TOKEN, "", -1, "/", "", false, true)
+	ctx.SetSameSite(http.SameSiteNoneMode)
+	ctx.SetCookie(
+		domain.COOKIE_TOKEN,
+		"",
+		-1,
+		"/",
+		"storyquests-frontend.onrender.com",
+		true,
+		true,
+	)
 }
