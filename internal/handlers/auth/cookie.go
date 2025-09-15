@@ -16,7 +16,7 @@ func setTokenToCookie(ctx *gin.Context, token string) {
 		token,
 		int(time.Hour.Seconds()),
 		"/",
-		"storyquests-frontend.onrender.com", 
+		"", 
 		true,
 		true,
 	)
@@ -29,7 +29,7 @@ func removeTokenFromCookie(ctx *gin.Context) {
 		"",
 		-1,
 		"/",
-		"storyquests-frontend.onrender.com",
+		"",
 		true,
 		true,
 	)
