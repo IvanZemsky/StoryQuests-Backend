@@ -1,8 +1,10 @@
+version: '3.8'
+
 services:
   backend:
     build: .
     ports:
-      - "${PORT}:8080"
+      - "8080"
     environment:
       - PORT=${PORT}
       - ORIGIN=${ORIGIN}
@@ -15,3 +17,15 @@ services:
       - DB_PASS=${DB_PASS}
       - DB_CLUSTER=${DB_CLUSTER}
       - DB_CLUSTER_NAME=${DB_CLUSTER_NAME}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-api.rule=Host(`api.your-domain.com`)"
+      - "traefik.http.routers.backend-api.entrypoints=websecure"
+      - "traefik.http.routers.backend-api.tls.certResolver=letsencrypt"
+      - "traefik.http.services.backend-api.loadbalancer.server.port=8080"
+
+networks:
+  dokploy-network:
+    external: true

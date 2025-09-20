@@ -69,7 +69,6 @@ func readConfig(path string) *config.Config {
 		cfg = &config.Config{}
 	}
 
-	// PORT (Render обязательно передаёт)
 	if portStr := os.Getenv("PORT"); portStr != "" {
 		if port, err := strconv.Atoi(portStr); err == nil {
 			cfg.Port = port
