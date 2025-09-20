@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=${PORT}
+      - ORIGIN=${ORIGIN}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_PORT=${DB_PORT}
+      - DB_TYPE=${DB_TYPE}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_CLUSTER=${DB_CLUSTER}
+      - DB_CLUSTER_NAME=${DB_CLUSTER_NAME}
