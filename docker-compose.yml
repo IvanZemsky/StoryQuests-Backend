@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
@@ -17,14 +17,17 @@ services:
       - DB_PASS=${DB_PASS}
       - DB_CLUSTER=${DB_CLUSTER}
       - DB_CLUSTER_NAME=${DB_CLUSTER_NAME}
+    restart: unless-stopped
     networks:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend-api.rule=Host(`api.your-domain.com`)"
+      - "traefik.http.routers.backend-api.rule=Host(storyquests-storyquests-zqf2at-02ff9a-95-164-55-96.traefik.me)"
       - "traefik.http.routers.backend-api.entrypoints=websecure"
       - "traefik.http.routers.backend-api.tls.certResolver=letsencrypt"
       - "traefik.http.services.backend-api.loadbalancer.server.port=8080"
+      - "traefik.http.routers.backend-api.middlewares=backend-headers"
+      - "traefik.http.middlewares.backend-headers.headers.customRequestHeaders.X-Forwarded-Proto=https"
 
 networks:
   dokploy-network:
