@@ -103,6 +103,9 @@ func readConfig(path string) *config.Config {
 	if clusterName := os.Getenv("DB_CLUSTER_NAME"); clusterName != "" {
 		cfg.Database.ClusterName = clusterName
 	}
+	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
+		cfg.JWT_secret = jwtSecret
+	}
 	if dbPort := os.Getenv("DB_PORT"); dbPort != "" {
 		if port, err := strconv.Atoi(dbPort); err == nil {
 			cfg.Database.Port = port

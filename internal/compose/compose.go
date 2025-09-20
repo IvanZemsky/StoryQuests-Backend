@@ -2,6 +2,7 @@ package compose
 
 import (
 	"stories-backend/config"
+	authDomain "stories-backend/internal/domain/auth"
 	sceneDomain "stories-backend/internal/domain/scene"
 	storyDomain "stories-backend/internal/domain/story"
 	userDomain "stories-backend/internal/domain/user"
@@ -30,7 +31,7 @@ type InitModuleOptions struct {
 func InitModules(init InitModuleOptions) {
 	repositories := initRepositories(init.Client, init.Config)
 	InitUserModule(init, repositories.user)
-	InitAuthModule(init, repositories.user)
+	InitAuthModule(init, repositories.user, authDomain.JWTConfig{Secret: init.Config.JWT_secret})
 	InitStoryModule(init, repositories.story, repositories.scene, repositories.like)
 	InitSceneModule(init, repositories.scene, repositories.story)
 

@@ -18,7 +18,7 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-func generateToken(userID string, login string) (string, error) {
+func generateToken(userID string, login string, secret string) (string, error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 
 	claims := domain.JWTClaims{
@@ -31,7 +31,7 @@ func generateToken(userID string, login string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// store secret separate and safe
-	tokenString, err := token.SignedString([]byte("secret"))
+	tokenString, err := token.SignedString([]byte(secret))
 
 	if err != nil {
 		return "", err

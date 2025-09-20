@@ -7,3 +7,7 @@ type JWTClaims struct {
 	Login string `json:"login"`
 	jwt.RegisteredClaims
 }
+
+type JWTConfig struct {
+	Secret string
+}

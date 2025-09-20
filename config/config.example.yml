@@ -9,3 +9,4 @@ database:
   cluster_name: Cluster0
 db_type: cluster # or local
 origin: http://localhost:3000
+jwt_secret: secret

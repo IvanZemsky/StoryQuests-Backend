@@ -7,8 +7,9 @@ import (
 
 type authService struct {
 	userRepo userDomain.UserRepository
+	jwt authDomain.JWTConfig
 }
 
-func NewAuthService(userRepo userDomain.UserRepository) authDomain.AuthService {
-	return &authService{userRepo: userRepo}
+func NewAuthService(userRepo userDomain.UserRepository, jwt authDomain.JWTConfig) authDomain.AuthService {
+	return &authService{userRepo: userRepo, jwt: jwt}
 }

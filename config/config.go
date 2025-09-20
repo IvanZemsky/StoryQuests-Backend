@@ -18,6 +18,7 @@ type Config struct {
 	} `yaml:"database"`
 	DBType string `yaml:"db_type"`
 	Origin string `yaml:"origin"`
+	JWT_secret string `yaml:"jwt_secret"`
 }
 
 func ReadConfig(path string) (*Config, error) {
