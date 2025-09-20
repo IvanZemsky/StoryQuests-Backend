@@ -8,7 +8,7 @@ import (
 )
 
 func (s *storyService) Create(
-	storyDTO domain.CreateStoryDTO,
+	storyDTO *domain.CreateStoryDTO,
 	scenesDTO []sceneDomain.CreateSceneDTO,
 ) (bson.ObjectID, error) {
 	storyID, err := s.repo.Create(storyDTO)

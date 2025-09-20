@@ -8,11 +8,11 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-func (repo *storyRepository) Create(DTO domain.CreateStoryDTO) (bson.ObjectID, error) {
+func (repo *storyRepository) Create(DTO *domain.CreateStoryDTO) (bson.ObjectID, error) {
 	ctx, cancel := repository.NewRequestTimeoutContext()
 	defer cancel()
 
-	story := createFromDTO(&DTO)
+	story := createFromDTO(DTO)
 
 	result, err := repo.collection.InsertOne(ctx, story)
 	if err != nil {

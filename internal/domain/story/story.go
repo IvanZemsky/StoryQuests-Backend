@@ -11,7 +11,7 @@ type StoryService interface {
 	Find(filters StoryFilters) ([]StoryResponse, int32, error)
 	FindByID(params FindOneStoryParams) (StoryResponse, error)
 	Like(LikeStoryDTO) (LikeStoryResponse, error)
-	Create(storyDTO CreateStoryDTO, scenesDTO []sceneDomain.CreateSceneDTO) (bson.ObjectID, error)
+	Create(storyDTO *CreateStoryDTO, scenesDTO []sceneDomain.CreateSceneDTO) (bson.ObjectID, error)
 	IncrementPasses(storyID bson.ObjectID) error
 	SetResult(setResultDTO SetResultDTO) (StoryResult, error)
 	FindResultsByStoryID(storyID bson.ObjectID) ([]StoryResult, error)
@@ -23,7 +23,7 @@ type StoryRepository interface {
 	FindByID(params FindOneStoryParams) (StoryResponse, error)
 	StoryExists(id bson.ObjectID) (bool, error)
 	Like(dto LikeStoryDTO) (LikeStoryResponse, error)
-	Create(dto CreateStoryDTO) (bson.ObjectID, error)
+	Create(dto *CreateStoryDTO) (bson.ObjectID, error)
 	IncrementPasses(storyID bson.ObjectID) error
 	CreateResult(setResultDTO SetResultDTO) (StoryResult, error)
 	UpdateResult(setResultDTO SetResultDTO) (StoryResult, error)
@@ -65,16 +65,3 @@ type FindOneStoryParams struct {
 	ID bson.ObjectID `json:"id" bson:"_id"`
 	Me bson.ObjectID `json:"me"`
 }
-
-// type GetStoryDTO struct {
-// 	Data []StoryResponse
-// 	Total int
-// }
-
-// type StoryResponse struct {
-// 	Story  `json:",inline"`
-// 	Author struct {
-// 		ID    string `bson:"_id" json:"id"`
-// 		Login string `bson:"login" json:"login"`
-// 	} `bson:"author" json:"author"`
-// }

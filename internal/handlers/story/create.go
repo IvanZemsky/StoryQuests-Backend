@@ -32,7 +32,7 @@ func (handler *StoryHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	storyDTO, err := createCreateStoryDTO(body.StoryInfo, userID)
+	storyDTO, err := createCreateStoryDTO(&body.StoryInfo, userID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -50,10 +50,10 @@ func (handler *StoryHandler) Create(ctx *gin.Context) {
 }
 
 func createCreateStoryDTO(
-	storyInfoFromBody domain.CreateStoryInfoBody,
+	storyInfoFromBody *domain.CreateStoryInfoBody,
 	authorId bson.ObjectID,
-	) (domain.CreateStoryDTO, error) {
-	return domain.CreateStoryDTO{
+	) (*domain.CreateStoryDTO, error) {
+	return &domain.CreateStoryDTO{
 		Name:        storyInfoFromBody.Name,
 		Description: storyInfoFromBody.Description,
 		AuthorID:    authorId,
